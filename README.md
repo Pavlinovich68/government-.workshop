@@ -1,2 +1,2 @@
-# government-.workshop
+# government.workshop
 Региональные рабочие совещания правительства Челябинской области
