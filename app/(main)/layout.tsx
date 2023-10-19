@@ -6,15 +6,15 @@ interface AppLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: 'Рабочее пространство',
-    description: 'Рабочее пространство Правительства и органов исполнительной власти Челябинской области.',
+    title: 'Рабочие совещания',
+    description: 'Рабочие совещания Правительства и органов исполнительной власти Челябинской области.',
     robots: { index: false, follow: false },
     viewport: { initialScale: 1, width: 'device-width' },
     openGraph: {
         type: 'website',
-        title: 'Рабочее пространство',
+        title: 'Рабочие совещания',
         url: '',
-        description: 'Рабочее пространство Правительства и органов исполнительной власти Челябинской области.',
+        description: 'Рабочие совещания Правительства и органов исполнительной власти Челябинской области.',
         images: ['https://www.primefaces.org/static/social/sakai-react.png'],
         ttl: 604800
     },
