@@ -14,9 +14,7 @@ export const metadata: Metadata = {
         type: 'website',
         title: 'Рабочие совещания',
         url: '',
-        description: 'Рабочие совещания Правительства и органов исполнительной власти Челябинской области.',
-        images: ['https://www.primefaces.org/static/social/sakai-react.png'],
-        ttl: 604800
+        description: 'Рабочие совещания Правительства и органов исполнительной власти Челябинской области.'
     },
     icons: {
         icon: '/favicon.ico'

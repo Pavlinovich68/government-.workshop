@@ -26,8 +26,14 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             </button>
 
             <Link href="/" className="layout-topbar-logo">
-                <Image src={`/layout/images/logo.svg`} width={100} height={100} alt="logo" />
-                <span>Рабочие совещания</span>
+                <Image src={`/layout/images/logo.svg`}
+                       alt="Logo"
+                       width="0"
+                       height="0"
+                       sizes="100vw"
+                       style={{ width: '32px', height: 'auto' }}
+                />
+                <span>Центр коммуникаций Правительства Челябинской области</span>
             </Link>
 
             <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={showProfileSidebar}>
