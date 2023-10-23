@@ -1,66 +1,72 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 import { useRouter } from 'next/navigation';
-import React, { useContext, useState } from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import { Checkbox } from 'primereact/checkbox';
 import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { LayoutContext } from '../../../../layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
+//import {store} from "next/dist/build/output/store";
+import {$app_variables} from "../../../../app.variables";
 
 const LoginPage = () => {
-    const [password, setPassword] = useState('');
-    const [checked, setChecked] = useState(false);
-    const { layoutConfig } = useContext(LayoutContext);
+    const [email, setEmail] = useState<string>('')
+    const [password, setPassword] = useState<string>('')
+    const [rest, setRest] = useState<string>('')
+    const shift = useRef<HTMLDivElement>(null);
 
-    const router = useRouter();
-    const containerClassName = classNames('surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
+    const rightToLeft = () => {
+        shift.current?.classList.add('itr-right-panel-active');
+    }
+
+    const leftToRight = () => {
+        shift.current?.classList.remove('itr-right-panel-active');
+    }
 
     return (
-        <div className={containerClassName}>
-            <div className="flex flex-column align-items-center justify-content-center">
-                <img src={`/layout/images/logo-${layoutConfig.colorScheme === 'light' ? 'dark' : 'white'}.svg`} alt="Sakai logo" className="mb-5 w-6rem flex-shrink-0" />
-                <div
-                    style={{
-                        borderRadius: '56px',
-                        padding: '0.3rem',
-                        background: 'linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)'
-                    }}
-                >
-                    <div className="w-full surface-card py-8 px-5 sm:px-8" style={{ borderRadius: '53px' }}>
-                        <div className="text-center mb-5">
-                            <img src="/demo/images/login/avatar.png" alt="Image" height="50" className="mb-3" />
-                            <div className="text-900 text-3xl font-medium mb-3">Welcome, Isabel!</div>
-                            <span className="text-600 font-medium">Sign in to continue</span>
-                        </div>
-
-                        <div>
-                            <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2">
-                                Email
-                            </label>
-                            <InputText id="email1" type="text" placeholder="Email address" className="w-full md:w-30rem mb-5" style={{ padding: '1rem' }} />
-
-                            <label htmlFor="password1" className="block text-900 font-medium text-xl mb-2">
-                                Password
-                            </label>
-                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" toggleMask className="w-full mb-5" inputClassName="w-full p-3 md:w-30rem"></Password>
-
-                            <div className="flex align-items-center justify-content-between mb-5 gap-5">
-                                <div className="flex align-items-center">
-                                    <Checkbox inputId="rememberme1" checked={checked} onChange={(e) => setChecked(e.checked ?? false)} className="mr-2"></Checkbox>
-                                    <label htmlFor="rememberme1">Remember me</label>
-                                </div>
-                                <a className="font-medium no-underline ml-2 text-right cursor-pointer" style={{ color: 'var(--primary-color)' }}>
-                                    Forgot password?
-                                </a>
+        <React.Fragment>
+            <div className="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+                <div ref={shift} className="itr-login-form">
+                    <div className="itr-form-container itr-sign-up-container">
+                        <form action="#">
+                            <h1 className="itr-h1">Восстановление пароля</h1>
+                            <input type="email" placeholder="Адрес электронной почты" value={rest} onChange={e => setRest(e.target.value)}/>
+                            <button className="itr-button" disabled={!rest} >Отправить</button>
+                        </form>
+                    </div>
+                    <div className="itr-form-container itr-sign-in-container">
+                        <form action="#">
+                            <h1 className="itr-h1">Вход в систему</h1>
+                            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}/>
+                            <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}/>
+                            <button className="itr-button" disabled={!email || !password} >Войти</button>
+                        </form>
+                    </div>
+                    <div className="itr-overlay-container">
+                        <div className="itr-overlay">
+                            <div className="itr-overlay-panel itr-overlay-left">
+                                <img className="itr-overlay-logo" src={'/layout/images/logo.svg'} alt =""/>
+                                <h1 className="itr-h1">{$app_variables.TITLE}</h1>
+                                <p className="itr-p">На указанный адрес электронной почты будет выслано письмо со ссылкой на форму восстановления пароля</p>
+                                <button className="itr-ghost itr-button" id="signIn"
+                                        onClick={() => leftToRight()}
+                                >Войти в систему</button>
                             </div>
-                            <Button label="Sign In" className="w-full p-3 text-xl" onClick={() => router.push('/')}></Button>
+                            <div className="itr-overlay-panel itr-overlay-right">
+                                <img className="itr-overlay-logo" src={'/layout/images/logo.svg'} alt =""/>
+                                <h1 className="itr-h1">{$app_variables.TITLE}</h1>
+                                <p className="itr-p">Для входа в систему введите адрес электронной почты и пароль</p>
+                                <button className="itr-ghost itr-button" id="signUp"
+                                        onClick={() => rightToLeft()}
+                                >Восстановить пароль</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </React.Fragment>
     );
 };
 
