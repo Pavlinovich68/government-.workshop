@@ -11,6 +11,8 @@ import { LayoutContext } from '../../layout/context/layoutcontext';
 import Link from 'next/link';
 import { Demo } from '../../types/types';
 import { ChartData, ChartOptions } from 'chart.js';
+import {useSession} from "next-auth/react";
+import Image from "next/image";
 
 const lineData: ChartData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -40,6 +42,8 @@ const Dashboard = () => {
     const menu2 = useRef<Menu>(null);
     const [lineOptions, setLineOptions] = useState<ChartOptions>({});
     const { layoutConfig } = useContext(LayoutContext);
+
+    const session = useSession();
 
     const applyLightTheme = () => {
         const lineOptions: ChartOptions = {
@@ -130,11 +134,11 @@ const Dashboard = () => {
                 <div className="card mb-0">
                     <div className="flex justify-content-between mb-3">
                         <div>
-                            <span className="block text-500 font-medium mb-3">Orders</span>
+                            <span className="block text-500 font-medium mb-3">{session.data?.user?.name}</span>
                             <div className="text-900 font-medium text-xl">152</div>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <i className="pi pi-shopping-cart text-blue-500 text-xl" />
+                            <img src={session.data?.user?.image??""} width={100} height={100} alt=""/>
                         </div>
                     </div>
                     <span className="text-green-500 font-medium">24 new </span>

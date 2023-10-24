@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Layout from '../../layout/layout';
+import {Providers} from "@/components/Providers";
 
 interface AppLayoutProps {
     children: React.ReactNode;
@@ -22,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function AppLayout({ children }: AppLayoutProps) {
-    return <Layout>{children}</Layout>;
+    return <Providers><Layout>{children}</Layout></Providers>;
 }
