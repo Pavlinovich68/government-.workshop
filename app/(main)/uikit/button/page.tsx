@@ -4,6 +4,7 @@ import { SplitButton } from 'primereact/splitbutton';
 import { Button } from 'primereact/button';
 import styles from './index.module.scss';
 import { classNames } from 'primereact/utils';
+import { signOut } from 'next-auth/react';
 
 const ButtonDemo = () => {
     const [loading1, setLoading1] = useState(false);
@@ -64,7 +65,7 @@ const ButtonDemo = () => {
                 <div className="card">
                     <h5>Default</h5>
                     <div className="flex flex-wrap gap-2">
-                        <Button label="Submit"></Button>
+                        <Button label="Submit" onClick={() => {signOut({callbackUrl: "/auth/login"})}}></Button>
                         <Button label="Disabled" disabled></Button>
                         <Button label="Link" link></Button>
                     </div>

@@ -16,9 +16,11 @@ import { LayoutContext } from "./context/layoutcontext";
 import { PrimeReactContext } from "primereact/api";
 import { ChildContainerProps, LayoutState, AppTopbarRef } from "../types/types";
 import { usePathname, useSearchParams } from "next/navigation";
+import {useSession} from "next-auth/react";
 
 
 const Layout = ({ children }: ChildContainerProps) => {
+  const session = useSession();
   const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
   const { setRipple } = useContext(PrimeReactContext);
   const topbarRef = useRef<AppTopbarRef>(null);
@@ -39,6 +41,8 @@ const Layout = ({ children }: ChildContainerProps) => {
         }
       },
     });
+
+  console.log('session:', session);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
