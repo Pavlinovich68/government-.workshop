@@ -9,3 +9,27 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model division {
+  id           Int        @id @default(autoincrement())
+  name         String?    @unique(map: "division_u_ind") @db.VarChar(200)
+  parent_id    Int?
+  parent       division?  @relation("divisionTodivision", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childrens    division[] @relation("divisionTodivision")
+  // Признак приостановки распространения по ниспадающей признака for_all на совещательном зале
+  // Этому подразделению доступны все залы родителя, его детям уже нет
+  stop_for_all Boolean    @default(false) @db.Boolean
+  users        users[]
+}
+
+model users {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique(map: "users_email_u_ind") @db.VarChar(50)
+  name        String?   @db.VarChar(100)
+  begin_date  DateTime  @db.Timestamp(6)
+  end_date    DateTime? @db.Timestamp(6)
+  password    String?   @db.VarChar(255)
+  division_id Int
+  roles       Json?     @db.Json
+  division    division  @relation(fields: [division_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
