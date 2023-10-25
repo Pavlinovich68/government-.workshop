@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-//import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -26,7 +25,7 @@ async function main() {
         create: {
             email: 'administrator@localhost',
             begin_date: new Date(),
-            password: '',
+            password: '',//hashPassword,
             division_id: div.id,
             roles: [{"name": "Администратор системы","code": "admin"}]
         }
