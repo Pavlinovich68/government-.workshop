@@ -4,8 +4,6 @@ import React, {FormEventHandler, useContext, useRef, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {$app_variables} from "../../../../app.variables";
 import {signIn} from "next-auth/react";
-import {FormData} from "next/dist/compiled/@edge-runtime/primitives";
-import {handleAction} from "next/dist/server/app-render/action-handler";
 
 const LoginPage = () => {
     const [email, setEmail] = useState<string>('')
@@ -16,7 +14,6 @@ const LoginPage = () => {
     const router = useRouter();
 
     const callbackUrl = searchParams.get('callbackUrl') || '/';
-    console.log('callbackUrl:', callbackUrl);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
         event.preventDefault();
