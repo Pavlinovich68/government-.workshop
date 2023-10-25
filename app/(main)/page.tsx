@@ -138,7 +138,7 @@ const Dashboard = () => {
                             <div className="text-900 font-medium text-xl">152</div>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            <img src={session.data?.user?.image??""} width={100} height={100} alt=""/>
+                            {session.data && <img src={session.data?.user?.image??""} width={100} height={100} alt=""/>}
                         </div>
                     </div>
                     <span className="text-green-500 font-medium">24 new </span>
