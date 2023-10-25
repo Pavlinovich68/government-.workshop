@@ -8,7 +8,6 @@ import { Password } from 'primereact/password';
 import { LayoutContext } from '../../../../layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
-//import {store} from "next/dist/build/output/store";
 import {$app_variables} from "../../../../app.variables";
 
 const LoginPage = () => {
