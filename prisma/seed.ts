@@ -1,11 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
-const roles = [
-    {"name": "Администратор системы","code": "admin"},
-    {"name": "Пользователь системы","code": "base"}
-];
+import prisma from "./client";
+import crypto from "./crypt";
+import {appRoles} from "./roles";
 
 
 async function main() {
@@ -17,7 +12,7 @@ async function main() {
         }
     });
 
-    //const hashPassword = await bcrypt.hashSync("Administrator1!", 8);
+    const hashPassword = await crypto.hashSync("Administrator1!");
 
     const row = await prisma.users.upsert({
         where: {email: 'administrator@localhost'},
@@ -25,9 +20,9 @@ async function main() {
         create: {
             email: 'administrator@localhost',
             begin_date: new Date(),
-            password: '',//hashPassword,
+            password: hashPassword,
             division_id: div.id,
-            roles: [{"name": "Администратор системы","code": "admin"}]
+            roles: [appRoles["admin"]]
         }
     })
 }

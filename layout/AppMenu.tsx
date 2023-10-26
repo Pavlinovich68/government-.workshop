@@ -10,7 +10,7 @@ const AppMenu = () => {
     const { layoutConfig } = useContext(LayoutContext);
 
     const model: AppMenuItem[] = [
-        {
+        /*{
             label: 'Календари',
             items: [{ label: 'Дашборд', icon: 'pi pi-fw pi-chart-bar', to: '/' }]
         },
@@ -28,7 +28,7 @@ const AppMenu = () => {
                     to: '/pages/users'
                 }
             ]
-        },
+        },*/
         {
             label: 'Справочники',
             visible: true,//checkRoles(['admin', 'expert']),
@@ -50,7 +50,7 @@ const AppMenu = () => {
                 }
             ]
         },
-        {
+        /*{
             label: 'Рабочая область',
             visible: true,//checkRoles(['admin', 'expert']),
             items: [
@@ -59,7 +59,7 @@ const AppMenu = () => {
                     icon: 'pi pi-fw pi-building'
                 }
             ]
-        }
+        }*/
     ];
 
     return (

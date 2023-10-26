@@ -6,6 +6,7 @@ import React, { forwardRef, useContext, useImperativeHandle, useRef } from 'reac
 import { AppTopbarRef } from '../types/types';
 import { LayoutContext } from './context/layoutcontext';
 import Image from "next/image";
+import {signOut} from "next-auth/react";
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
@@ -49,12 +50,10 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                     <i className="pi pi-user"></i>
                     <span>Profile</span>
                 </button>
-                <Link href="/documentation">
-                    <button type="button" className="p-link layout-topbar-button">
-                        <i className="pi pi-cog"></i>
-                        <span>Settings</span>
-                    </button>
-                </Link>
+                <button type="button" className="p-link layout-topbar-button" onClick={() => {signOut({callbackUrl: "/auth/login"})}}>
+                    <i className="pi pi-sign-out"></i>
+                    <span>Settings</span>
+                </button>
             </div>
         </div>
     );
