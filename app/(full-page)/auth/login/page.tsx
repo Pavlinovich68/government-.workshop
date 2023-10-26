@@ -44,8 +44,8 @@ const LoginPage = () => {
 
     return (
         <React.Fragment>
-            {session.status !== "authenticated" ? <div className="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-                <div ref={shift} className="itr-login-form">
+            <div className="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+                {session.status !== "authenticated" ? <div ref={shift} className="itr-login-form">
                     <div className="itr-form-container itr-sign-up-container">
                         <form action="#">
                             <h1>Восстановление пароля</h1>
@@ -77,13 +77,8 @@ const LoginPage = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div> :
-                <div className="card">
-                    <ProgressBar mode="indeterminate"></ProgressBar>
-                </div>
-            }
-
+                </div> : <i className="pi pi-spin pi-spinner" style={{ fontSize: '10rem', color: '#326fd1'}}></i> }
+            </div>
         </React.Fragment>
     );
 };
