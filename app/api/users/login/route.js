@@ -5,7 +5,6 @@ import {NextResponse} from "next/server";
 
 export const POST = async (request) => {
     const {login, password} = await request.json();
-    console.log('request.json:', login, password);
 
     try {
         const user = await prisma.users.findFirst({

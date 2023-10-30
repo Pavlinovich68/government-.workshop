@@ -17,9 +17,6 @@ const LoginPage = () => {
     const session = useSession();
     const router = useRouter();
 
-    /*if (session.status == "loading"){
-
-    }*/
     if (session.status == "authenticated"){
         router?.push("/")
     }

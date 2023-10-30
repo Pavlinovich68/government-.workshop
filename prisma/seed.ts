@@ -8,7 +8,8 @@ async function main() {
         where: {name: 'Служба администрирования'},
         update: {},
         create: {
-            name: 'Служба администрирования'
+            name: 'Служба администрирования',
+            short_name: "Админы"
         }
     });
 
