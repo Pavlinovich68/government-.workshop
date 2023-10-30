@@ -21,14 +21,24 @@ model division {
 }
 
 model users {
-  id          Int       @id @default(autoincrement())
-  email       String    @unique(map: "users_email_u_ind") @db.VarChar(50)
-  name        String?   @db.VarChar(100)
-  begin_date  DateTime  @db.Timestamp(6)
-  end_date    DateTime? @db.Timestamp(6)
-  password    String?   @db.VarChar(255)
+  id          Int         @id @default(autoincrement())
+  email       String      @unique(map: "users_email_u_ind") @db.VarChar(50)
+  name        String?     @db.VarChar(100)
+  begin_date  DateTime    @db.Timestamp(6)
+  end_date    DateTime?   @db.Timestamp(6)
+  password    String?     @db.VarChar(255)
   division_id Int
-  roles       Json?     @db.Json
-  division    division  @relation(fields: [division_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  avatar      Bytes?    @db.ByteA
+  roles       Json?       @db.Json
+  division    division    @relation(fields: [division_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  avatar_id   Int?
+  avatar      attachment? @relation(fields: [avatar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model attachment {
+  id       Int     @id @default(autoincrement())
+  filename String  @db.VarChar(100)
+  name     String? @db.VarChar(100)
+  md5      String  @db.VarChar(16)
+  body     Bytes   @db.ByteA
+  users    users[]
 }
