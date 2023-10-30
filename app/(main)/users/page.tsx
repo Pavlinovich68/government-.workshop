@@ -11,7 +11,6 @@ import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
 import {ConfirmDialog} from "primereact/confirmdialog";
-import ItrGrid from "@/components/ItrGrid";
 
 const Users = () => {
     const emptyUser: IUser = {name: '', begin_date: new Date(), roles: []}
@@ -78,57 +77,21 @@ const Users = () => {
     };
     //#endregion
 
-    const gridHeader = (
-        <ColumnGroup>
-            <Row>
-                <Column header="" rowSpan={2}/>
-                <Column header="Фамилия Имя Отчество" rowSpan={2} sortable field="last_name"/>
-                <Column header="Подразделение" rowSpan={2} sortable field="division.name"/>
-                <Column header="Учетная запись" rowSpan={2} sortable field="email"/>
-                <Column header="Период действия" colSpan={2}/>
-                <Column header="" rowSpan={2}/>
-            </Row>
-            <Row>
-                <Column header="Дата начала" sortable field="begin_date"/>
-                <Column header="Дата окончания" sortable field="end_date"/>
-            </Row>
-        </ColumnGroup>
-    );
+    const fetchData = async () => {
+        const response  = await fetch('/api/users/read', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                pageSize: 10,
+                pageNo: 1,
+                orderBy: null,
+                searchStr: null
+            })
+        });
 
-    const gridColumns = (): JSX.Element[]  => {
-        return [
-            // eslint-disable-next-line react/jsx-key
-            <Column
-                field="name"
-                sortable
-                header="Фамилия Имя Отчество"
-                style={{ width: '20%' }}>
-            </Column>,
-            // eslint-disable-next-line react/jsx-key
-            <Column
-                field="division.name"
-                sortable
-                header="Подразделение"
-                style={{ width: '45%' }}>
-            </Column>,
-            // eslint-disable-next-line react/jsx-key
-            <Column
-                field="email"
-                sortable
-                header="Учетная запись"
-                style={{ width: '15%' }}>
-            </Column>,
-            // eslint-disable-next-line react/jsx-key
-            <Column
-                body={beginDateTemplate}
-                style={{ width: '10%' }}>
-            </Column>,
-            // eslint-disable-next-line react/jsx-key
-            <Column
-                body={endDateTemplate}
-                style={{ width: '10%' }}>
-            </Column>
-        ];
+        return await response.json();
     }
 
     return (
@@ -136,19 +99,6 @@ const Users = () => {
             <div className="col-12">
                 <div className="card">
                     <h3>Пользователи системы</h3>
-                    <ItrGrid
-                        id="usersGrid"
-                        //create={createUser}
-                        //read={UserService.read}
-                        //update={editUser}
-                        //drop={deleteUser}
-                        columnFields={columnFields}
-                        tableStyle={{minWidth: '50rem'}}
-                        columns={gridColumns()}
-                        showClosed={true}
-                        headerColumnGroup={gridHeader}
-                        ref={grid}
-                    />
                     <ConfirmDialog />
                     <Toast ref={toast} />
                 </div>
