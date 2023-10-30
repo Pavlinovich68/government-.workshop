@@ -1,5 +1,5 @@
 'use client'
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {IUser} from "@/models/IUser";
 import {Toast} from "primereact/toast";
 import {TreeNode} from "primereact/treenode";
@@ -11,17 +11,23 @@ import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
 import {ConfirmDialog} from "primereact/confirmdialog";
+import {DataTable} from "primereact/datatable";
+import {IDataSourceResult} from "@/types/IDataSourceResult";
 
 const Users = () => {
     const emptyUser: IUser = {name: '', begin_date: new Date(), roles: []}
     const toast = useRef(null);
-    const grid = useRef<IGridRef>(null);
-    const editor = useRef<ICardRef>(null);
-    const [columnFields] = useState(["last_name", "division.name", "email", "begin_date", "end_date"]);
-    const [cardHeader, setCardHeader] = useState('');
-    const [recordStyle, setRecordStyle] = useState<RecordState>(RecordState.ready);
-    const [submitted, setSubmitted] = useState(false);
-    const [divisions, setDivisions] = useState<TreeNode[]>([]);
+    const [records, setRecords] = useState<any>([]);
+
+
+    useEffect(() => {
+       fetchData().then((data) => {
+           if (data.status === 'success'){
+
+           }
+       })
+    });
+
 
 
     const user = useFormik<IUser>({
@@ -99,6 +105,12 @@ const Users = () => {
             <div className="col-12">
                 <div className="card">
                     <h3>Пользователи системы</h3>
+                    <DataTable
+                        id="userGrid"
+                        value={fetchData}
+                    >
+
+                    </DataTable>
                     <ConfirmDialog />
                     <Toast ref={toast} />
                 </div>
