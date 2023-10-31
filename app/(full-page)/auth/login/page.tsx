@@ -22,8 +22,6 @@ const LoginPage = () => {
     }
 
 
-    console.log(session);
-
     const handleSubmit = (e: any) => {
         e.preventDefault();
         signIn('credentials', { email, password });

@@ -1,6 +1,6 @@
 {
-  "name": "sakai-react",
-  "version": "10.1.0-SNAPSHOT",
+  "name": "Центр коммуникаций Правительства Челябинской области",
+  "version": "1.0.0",
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },

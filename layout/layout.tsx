@@ -14,12 +14,17 @@ import AppTopbar from "./AppTopbar";
 import { LayoutContext } from "./context/layoutcontext";
 import { PrimeReactContext } from "primereact/api";
 import { ChildContainerProps, LayoutState, AppTopbarRef } from "../types/types";
-import { usePathname, useSearchParams } from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {useSession} from "next-auth/react";
 
 
 const Layout = ({ children }: ChildContainerProps) => {
   const session = useSession();
+  const router = useRouter();
+
+  if (session.status === 'unauthenticated'){
+    router?.push('/auth/login');
+  }
   const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
   const { setRipple } = useContext(PrimeReactContext);
   const topbarRef = useRef<AppTopbarRef>(null);
@@ -40,8 +45,6 @@ const Layout = ({ children }: ChildContainerProps) => {
         }
       },
     });
-
-  console.log('session:', session);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -147,7 +150,7 @@ const Layout = ({ children }: ChildContainerProps) => {
 
   return (
     <React.Fragment>
-      <div className={containerClass}>
+      <div className={containerClass} style={{visibility: session.status === "authenticated" ? 'visible' : 'hidden'}}>
         <AppTopbar ref={topbarRef} />
         <div ref={sidebarRef} className="layout-sidebar">
           <AppSidebar />
