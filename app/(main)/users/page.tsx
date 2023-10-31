@@ -26,15 +26,15 @@ const Users = () => {
 
 
     useEffect(() => {
-       fetchData().then((data) => {
+       fetchData(10, 1, null, '').then((data) => {
            if (data.status === 'success'){
-                setPageNo(1);
+                setPageNo(data.data.pageNo);
                 setPageSize(data.data.pageSize);
                 setRecordCount(data.data.recordCount);
                 setRecords(data.data.result)
            }
        })
-    });
+    }, []);
 
 
 
@@ -91,17 +91,17 @@ const Users = () => {
     };
     //#endregion
 
-    const fetchData = async () => {
+    const fetchData = async (pageSize: number, pageNo: number, orderBy: any, searchStr: string) => {
         const response  = await fetch('/api/users/read', {
             method: 'post',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8'
             },
             body: JSON.stringify({
-                pageSize: 10,
-                pageNo: 1,
-                orderBy: null,
-                searchStr: null
+                pageSize: pageSize,
+                pageNo: pageNo,
+                orderBy: orderBy,
+                searchStr: searchStr
             })
         });
 
@@ -139,6 +139,45 @@ const Users = () => {
         }
     };
 
+    const onRefreshCurrentPage = (event: any) => {
+        fetchData(pageSize, pageNo, null, '').then((data)=>{
+            if (data.status === 'success'){
+                setRecordCount(data.data.recordCount);
+                setRecords(data.data.result)
+            }
+        });
+    };
+
+    const gridHeader = (
+        <ColumnGroup>
+            <Row>
+                <Column header="" rowSpan={2}/>
+                <Column header="Фамилия Имя Отчество" rowSpan={2} sortable field="last_name"/>
+                <Column header="Подразделение" rowSpan={2} sortable field="division.name"/>
+                <Column header="Учетная запись" rowSpan={2} sortable field="email"/>
+                <Column header="Период действия" colSpan={2}/>
+                <Column header="" rowSpan={2}/>
+            </Row>
+            <Row>
+                <Column header="Дата начала" sortable field="begin_date"/>
+                <Column header="Дата окончания" sortable field="end_date"/>
+            </Row>
+        </ColumnGroup>
+    );
+
+    const editRecordTemplate = (item: any) => {
+        return <Button icon="pi pi-pencil" className="itr-row-button" rounded severity="info" aria-label="Редактировать"
+                       tooltip="Редактировать" tooltipOptions={{ position: 'top' }}
+
+        />
+    }
+    const deleteRecordTemplate = (item: any) => {
+        return <Button icon="pi pi-trash" severity="danger" className="itr-row-button" rounded aria-label="Удалить"
+                       tooltip="Удалить" tooltipOptions={{ position: 'top' }}
+
+        />
+    }
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -152,9 +191,15 @@ const Users = () => {
                         showGridlines
                         stripedRows
                         tableStyle={{minWidth: '50rem'}}
-
+                        headerColumnGroup={gridHeader}
                     >
-
+                        <Column header="" body={editRecordTemplate} style={{ width: '1rem' }}/>
+                        <Column field="name" sortable header="Фамилия Имя Отчество" style={{width: '20%'}}/>
+                        <Column field="division.name" sortable header="Подразделение" style={{ width: '45%' }}/>
+                        <Column field="email" sortable header="Учетная запись" style={{ width: '15%' }}/>
+                        <Column body={beginDateTemplate} style={{ width: '10%' }}/>
+                        <Column body={endDateTemplate} style={{ width: '10%' }}/>
+                        <Column header="" body={deleteRecordTemplate}  style={{ width: '1rem' }}/>
                     </DataTable>
                     <ConfirmDialog />
                     <Toast ref={toast} />

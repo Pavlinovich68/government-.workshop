@@ -4,6 +4,11 @@ import {NextResponse} from "next/server";
 export const POST = async (request) => {
     const {pageSize, pageNo, orderBy, searchStr} = await request.json();
 
+    console.log('pageSize:', pageSize);
+    console.log('pageNo:', pageNo);
+    console.log('orderBy:', orderBy);
+    console.log('searchStr:', searchStr);
+
     try {
         let filter = {};
         if (searchStr) {
@@ -33,14 +38,17 @@ export const POST = async (request) => {
             }
         }
 
-        const totalCount = await prisma.users.count({ where: searchStr });
+        const totalCount = await prisma.users.count({where: filter});
+        console.log('totalCount:', totalCount);
         const result = await prisma.users.findMany({
             skip: pageSize * (pageNo -1),
             take: pageSize,
             where: filter,
-            orderBy: orderBy,
+            //orderBy: orderBy,
             include: {division: true}
         });
+
+        console.log('result:', result);
 
         let json_response = {
             status: "success",
@@ -52,7 +60,7 @@ export const POST = async (request) => {
                 result: result
             },
         };
-
+        console.log('json_response:', json_response);
         return NextResponse.json(json_response);
     } catch (error) {
         let error_response = {
