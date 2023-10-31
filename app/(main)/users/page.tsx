@@ -13,17 +13,25 @@ import {Row} from "primereact/row";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import {DataTable} from "primereact/datatable";
 import {IDataSourceResult} from "@/types/IDataSourceResult";
+import {Dropdown} from "primereact/dropdown";
+import {Button} from "primereact/button";
 
 const Users = () => {
     const emptyUser: IUser = {name: '', begin_date: new Date(), roles: []}
     const toast = useRef(null);
+    const [pageSize, setPageSize] = useState(10);
+    const [pageNo, setPageNo] = useState(1);
+    const [recordCount, setRecordCount] = useState(0);
     const [records, setRecords] = useState<any>([]);
 
 
     useEffect(() => {
        fetchData().then((data) => {
            if (data.status === 'success'){
-
+                setPageNo(1);
+                setPageSize(data.data.pageSize);
+                setRecordCount(data.data.recordCount);
+                setRecords(data.data.result)
            }
        })
     });
@@ -100,6 +108,37 @@ const Users = () => {
         return await response.json();
     }
 
+    const paginatorTemplate = {
+        layout: 'FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport',
+        RowsPerPageDropdown: (options: any) => {
+            const dropdownOptions = [
+                { label: 5, value: 5 },
+                { label: 10, value: 10 },
+                { label: 20, value: 20 },
+                { label: 120, value: 120 }
+            ];
+
+            return (
+                <React.Fragment>
+                    <span className="mx-1" style={{ color: 'var(--text-color)', userSelect: 'none' }}>
+                        Строк на странице:{' '}
+                    </span>
+                    <Dropdown value={options.value} options={dropdownOptions} onChange={options.onChange} />
+                </React.Fragment>
+            );
+        },
+        CurrentPageReport: (options: any) => {
+            return (
+                <>
+                  <span style={{ color: 'var(--text-color)', userSelect: 'none', width: '120px', textAlign: 'center' }}>
+                      {options.first} - {options.last} из {options.totalRecords}
+                  </span>
+                  <Button type="button" icon="pi pi-refresh" text onClick={onRefreshCurrentPage}/>
+                </>
+            );
+        }
+    };
+
     return (
         <div className="grid">
             <div className="col-12">
@@ -107,7 +146,13 @@ const Users = () => {
                     <h3>Пользователи системы</h3>
                     <DataTable
                         id="userGrid"
-                        value={fetchData}
+                        value={records}
+                        removableSort
+                        sortMode="multiple"
+                        showGridlines
+                        stripedRows
+                        tableStyle={{minWidth: '50rem'}}
+
                     >
 
                     </DataTable>
