@@ -38,7 +38,7 @@ export default class Store {
                 }
             });
 
-            /*if (!user) {
+            if (!user) {
                 throw ApiError.BadRequest('Пользователь с таким email не найден');
             }
 
@@ -47,9 +47,9 @@ export default class Store {
                 throw ApiError.BadRequest('Неверный пароль')
             }
 
-            //this.setUser(user as IUser);
-            //this.setAuth(true);*/
-            await signIn('credentials', { email, password });
+            this.setUser(user as IUser);
+            this.setAuth(true);
+            //await signIn('credentials', { email, password });
         } catch (error) {
             throw ApiError.AuthorizationError();
         }

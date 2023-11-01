@@ -42,22 +42,12 @@ const handler = NextAuth({
             cookies: cookies,
             async authorize(credentials){
               try {
-                  const user = await prisma.users.findFirst({
-                      where: {
-                          email: credentials.email
-                      }
-                  });
-
-                  if (!user) {
-                      throw ApiError.BadRequest('Пользователь с таким email не найден');
-                  }
-
-                  const isPassEquals = await bcrypt.compare(credentials.password, user.password);
+                  const isPassEquals = await bcrypt.compare(credentials.password, credentials.hash);
                   if (!isPassEquals) {
                       throw ApiError.BadRequest('Неверный пароль')
                   }
 
-                  return user;
+                  return {email: credentials.email, name: credentials.name, hash: credentials.password};
               }  catch (error) {
                   throw new Error(error);
               }

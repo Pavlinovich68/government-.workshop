@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 
 const Dashboard = () => {
     const session = useSession();
+
     console.log('session:', session)
 
     return (

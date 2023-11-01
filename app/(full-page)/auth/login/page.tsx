@@ -7,6 +7,7 @@ import {$app_variables} from "../../../../app.variables";
 import {signIn, useSession} from "next-auth/react";
 import {Context} from "preact/compat";
 import {AuthContext} from "@/layout/layout";
+import {IDivision} from "@/models/IDivision";
 
 
 const LoginPage = () => {
@@ -25,11 +26,39 @@ const LoginPage = () => {
         router?.push("/")
     }
 
+    console.log('store', store)
+
+    async function getUser(email: string) {
+        const res = await fetch(`http://localhost:3000/api/users/${email}`, {
+            cache: "no-store",
+        });
+
+        if (!res.ok) {
+            throw new Error("Failed to fetch data");
+        }
+
+        return await res.json();
+    }
+
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
-        await store.login(email, password);
-        //signIn('credentials', { email, password });
+        const user = await getUser(email);
+        if (user.status === 'success') {
+            console.log('user', user);
+            /*id?: number;
+            email?: string,
+                division?: IDivision,
+                name: string,
+                begin_date: Date,
+                end_date?: Date
+            roles: any[];*/
+            const id = user.result.id;
+            const name = user.result.name;
+            const hash = user.result.password;
+
+            await signIn('credentials', { id, name, email, password, hash });
+        }
     }
 
     const rightToLeft = () => {
