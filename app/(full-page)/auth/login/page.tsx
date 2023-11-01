@@ -1,13 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import React, {useRef, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import type {FormEventHandler} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {$app_variables} from "../../../../app.variables";
 import {signIn, useSession} from "next-auth/react";
-import {ProgressBar} from "primereact/progressbar";
+import {Context} from "preact/compat";
+import {AuthContext} from "@/layout/layout";
+
 
 const LoginPage = () => {
+    const {store} = useContext(AuthContext);
+
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [rest, setRest] = useState<string>('')
@@ -22,9 +26,10 @@ const LoginPage = () => {
     }
 
 
-    const handleSubmit = (e: any) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault();
-        signIn('credentials', { email, password });
+        await store.login(email, password);
+        //signIn('credentials', { email, password });
     }
 
     const rightToLeft = () => {

@@ -23,5 +23,9 @@ export const metadata: Metadata = {
 };
 
 export default function AppLayout({ children }: AppLayoutProps) {
-    return <Providers><Layout>{children}</Layout></Providers>;
+    return (
+        <Providers>
+            <Layout>{children}</Layout>
+        </Providers>
+    );
 }

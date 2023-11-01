@@ -4,6 +4,8 @@ import {PrismaClient} from "@prisma/client";
 import ApiError from "../../api-error";
 import bcrypt from "bcryptjs";
 
+
+
 const prisma = new PrismaClient();
 
 const cookies = {

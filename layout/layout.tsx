@@ -6,7 +6,7 @@ import {
   useMountEffect,
   useUnmountEffect,
 } from "primereact/hooks";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
 import { classNames } from "primereact/utils";
 import AppFooter from "./AppFooter";
 import AppSidebar from "./AppSidebar";
@@ -16,7 +16,16 @@ import { PrimeReactContext } from "primereact/api";
 import { ChildContainerProps, LayoutState, AppTopbarRef } from "../types/types";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {useSession} from "next-auth/react";
+import Store from "@/store/store";
 
+interface State {
+  store: Store;
+}
+
+const store = new Store();
+export const AuthContext = createContext<State>({
+  store,
+})
 
 const Layout = ({ children }: ChildContainerProps) => {
   const session = useSession();
@@ -149,19 +158,19 @@ const Layout = ({ children }: ChildContainerProps) => {
   });
 
   return (
-    <React.Fragment>
-      <div className={containerClass} style={{visibility: session.status === "authenticated" ? 'visible' : 'hidden'}}>
-        <AppTopbar ref={topbarRef} />
-        <div ref={sidebarRef} className="layout-sidebar">
-          <AppSidebar />
+      <AuthContext.Provider value={{ store }}>
+        <div className={containerClass} style={{visibility: session.status === "authenticated" ? 'visible' : 'hidden'}}>
+          <AppTopbar ref={topbarRef} />
+          <div ref={sidebarRef} className="layout-sidebar">
+            <AppSidebar />
+          </div>
+          <div className="layout-main-container">
+            <div className="layout-main">{children}</div>
+            <AppFooter />
+          </div>
+          <div className="layout-mask"></div>
         </div>
-        <div className="layout-main-container">
-          <div className="layout-main">{children}</div>
-          <AppFooter />
-        </div>
-        <div className="layout-mask"></div>
-      </div>
-    </React.Fragment>
+      </AuthContext.Provider>
   );
 };
 
