@@ -1,59 +1,53 @@
-import NextAuth from 'next-auth';
+import NextAuth from 'next-auth/next';
 import CredentialsProvider from "next-auth/providers/credentials";
-import {PrismaClient} from "@prisma/client";
-import ApiError from "../../api-error";
-import bcrypt from "bcryptjs";
-
-
+import bcrypt from "bcrypt";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const cookies = {
-    sessionToken: {
-        name: `next-auth.session-token`,
-        options: {
-            httpOnly: true,
-            sameSite: "none",
-            path: "/",
-            domain: process.env.NEXT_PUBLIC_DOMAIN,
-            secure: true,
-        },
-    },
-    callbackUrl: {
-        name: `next-auth.callback-url`,
-        options: {
-        },
-    },
-    csrfToken: {
-        name: "next-auth.csrf-token",
-        options: {
-        },
-    },
-};
+export const authOptions = {
+   adapter: PrismaAdapter(prisma),
+   providers: [
+      CredentialsProvider({
+         name: "credentials",
+         credentials: {
+            username: { label: "Username", type: "text", placeholder: "hfkjsd" },
+            password: { label: "Password", type: "password" }
+         },
+         async authorize(credentials) {
 
-const handler = NextAuth({
-    providers: [
-        CredentialsProvider({
-            id: "credentials",
-            name: "Credentials",
-            session: {
-              strategy: "jwt",
-            },
-            cookies: cookies,
-            async authorize(credentials){
-              try {
-                  const isPassEquals = await bcrypt.compare(credentials.password, credentials.hash);
-                  if (!isPassEquals) {
-                      throw ApiError.BadRequest('Неверный пароль')
-                  }
+         }
+      })
+   ],
+   session: {
+      strategy: "jwt"
+   },
+   secret: process.env.NEXTAUTH_SECRET,
+   debug: process.env.NODE_ENV === "development"
+}
 
-                  return {email: credentials.email, name: credentials.name, hash: credentials.password};
-              }  catch (error) {
-                  throw new Error(error);
-              }
-            }
-        })
-    ]
-});
+const handler = NextAuth(authOptions);
+
+// const handler = NextAuth({
+//    providers: [
+//       CredentialsProvider({
+//             id: "credentials",
+//             name: "Credentials",
+//             async authorize(credentials){
+//                try {
+//                   const isPassEquals = await bcrypt.compare(credentials.password, credentials.hash);
+//                   if (!isPassEquals) {
+//                      throw ApiError.BadRequest('Неверный пароль')
+//                   }
+
+//                   return {email: credentials.email, name: credentials.name, password: credentials.hash };
+//                }  catch (error) {
+//                   throw new Error(error);
+//                }
+//             }
+//       })
+//    ]
+// });
 
 export { handler as GET, handler as POST }
