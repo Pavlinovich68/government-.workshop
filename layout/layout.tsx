@@ -2,9 +2,9 @@
 "use client";
 
 import {
-  useEventListener,
-  useMountEffect,
-  useUnmountEffect,
+   useEventListener,
+   useMountEffect,
+   useUnmountEffect,
 } from "primereact/hooks";
 import React, { createContext, useContext, useEffect, useRef } from "react";
 import { classNames } from "primereact/utils";
@@ -19,86 +19,86 @@ import {useSession} from "next-auth/react";
 import Store from "@/store/store";
 
 interface State {
-  store: Store;
+   store: Store;
 }
 
 const store = new Store();
 export const AuthContext = createContext<State>({
-  store,
+   store,
 })
 
 const Layout = ({ children }: ChildContainerProps) => {
-  const session = useSession();
-  const router = useRouter();
+   const session = useSession();
+   const router = useRouter();
 
-  if (session.status === 'unauthenticated'){
-    router?.push('/auth/login');
-  }
-  const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
-  const { setRipple } = useContext(PrimeReactContext);
-  const topbarRef = useRef<AppTopbarRef>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  const [bindMenuOutsideClickListener, unbindMenuOutsideClickListener] =
-    useEventListener({
+   if (session.status === 'unauthenticated'){
+      router?.push('/login');
+   }
+   const { layoutConfig, layoutState, setLayoutState } = useContext(LayoutContext);
+   const { setRipple } = useContext(PrimeReactContext);
+   const topbarRef = useRef<AppTopbarRef>(null);
+   const sidebarRef = useRef<HTMLDivElement>(null);
+   const [bindMenuOutsideClickListener, unbindMenuOutsideClickListener] =
+      useEventListener({
       type: "click",
       listener: (event) => {
-        const isOutsideClicked = !(
-          sidebarRef.current?.isSameNode(event.target as Node) ||
-          sidebarRef.current?.contains(event.target as Node) ||
-          topbarRef.current?.menubutton?.isSameNode(event.target as Node) ||
-          topbarRef.current?.menubutton?.contains(event.target as Node)
-        );
+         const isOutsideClicked = !(
+            sidebarRef.current?.isSameNode(event.target as Node) ||
+            sidebarRef.current?.contains(event.target as Node) ||
+            topbarRef.current?.menubutton?.isSameNode(event.target as Node) ||
+            topbarRef.current?.menubutton?.contains(event.target as Node)
+         );
 
-        if (isOutsideClicked) {
-          hideMenu();
-        }
+         if (isOutsideClicked) {
+            hideMenu();
+         }
       },
-    });
+      });
 
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  useEffect(() => {
-    hideMenu();
-    hideProfileMenu();
-  }, [pathname, searchParams]);
+   const pathname = usePathname();
+   const searchParams = useSearchParams();
+   useEffect(() => {
+      hideMenu();
+      hideProfileMenu();
+   }, [pathname, searchParams]);
 
-  const [
-    bindProfileMenuOutsideClickListener,
-    unbindProfileMenuOutsideClickListener,
-  ] = useEventListener({
-    type: "click",
-    listener: (event) => {
+   const [
+      bindProfileMenuOutsideClickListener,
+      unbindProfileMenuOutsideClickListener,
+   ] = useEventListener({
+      type: "click",
+      listener: (event) => {
       const isOutsideClicked = !(
-        topbarRef.current?.topbarmenu?.isSameNode(event.target as Node) ||
-        topbarRef.current?.topbarmenu?.contains(event.target as Node) ||
-        topbarRef.current?.topbarmenubutton?.isSameNode(event.target as Node) ||
-        topbarRef.current?.topbarmenubutton?.contains(event.target as Node)
+         topbarRef.current?.topbarmenu?.isSameNode(event.target as Node) ||
+         topbarRef.current?.topbarmenu?.contains(event.target as Node) ||
+         topbarRef.current?.topbarmenubutton?.isSameNode(event.target as Node) ||
+         topbarRef.current?.topbarmenubutton?.contains(event.target as Node)
       );
 
       if (isOutsideClicked) {
-        hideProfileMenu();
+         hideProfileMenu();
       }
-    },
-  });
+      },
+   });
 
-  const hideMenu = () => {
-    setLayoutState((prevLayoutState: LayoutState) => ({
+   const hideMenu = () => {
+      setLayoutState((prevLayoutState: LayoutState) => ({
       ...prevLayoutState,
       overlayMenuActive: false,
       staticMenuMobileActive: false,
       menuHoverActive: false,
-    }));
-    unbindMenuOutsideClickListener();
-    unblockBodyScroll();
-  };
+      }));
+      unbindMenuOutsideClickListener();
+      unblockBodyScroll();
+   };
 
-  const hideProfileMenu = () => {
-    setLayoutState((prevLayoutState: LayoutState) => ({
+   const hideProfileMenu = () => {
+      setLayoutState((prevLayoutState: LayoutState) => ({
       ...prevLayoutState,
       profileSidebarVisible: false,
-    }));
-    unbindProfileMenuOutsideClickListener();
-  };
+      }));
+      unbindProfileMenuOutsideClickListener();
+   };
 
   const blockBodyScroll = (): void => {
     if (document.body.classList) {

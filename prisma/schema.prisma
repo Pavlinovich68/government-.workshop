@@ -1,13 +1,39 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+datasource db {
+   provider = "postgresql"
+   url      = env("DATABASE_URL")
+}
+
 generator client {
    provider = "prisma-client-js"
 }
 
-datasource db {
-   provider = "postgresql"
-   url      = env("DATABASE_URL")
+model Account {
+   id                 String  @id @default(cuid())
+   userId             Int
+   type               String
+   provider           String
+   providerAccountId  String
+   refresh_token      String?  @db.Text
+   access_token       String?  @db.Text
+   expires_at         Int?
+   token_type         String?
+   scope              String?
+   id_token           String?  @db.Text
+   session_state      String?
+   user users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+   @@unique([provider, providerAccountId])
+}
+
+model Session {
+   id           String   @id @default(cuid())
+   sessionToken String   @unique
+   userId       Int
+   expires      DateTime
+   user         users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model division {
@@ -32,13 +58,16 @@ model users {
    division      division    @relation(fields: [division_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
    attachment_id Int?
    avatar        attachment? @relation(fields: [attachment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+   emailVerified DateTime?
+   accounts      Account[]
+   sessions      Session[]
 }
 
 model attachment {
-  id       Int     @id @default(autoincrement())
-  filename String  @db.VarChar(100)
-  name     String? @db.VarChar(100)
-  md5      String  @db.VarChar(16)
-  body     Bytes   @db.ByteA
-  users    users[]
+   id       Int     @id @default(autoincrement())
+   filename String  @db.VarChar(100)
+   name     String? @db.VarChar(100)
+   md5      String  @db.VarChar(16)
+   body     Bytes   @db.ByteA
+   users    users[]
 }

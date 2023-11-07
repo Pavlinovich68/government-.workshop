@@ -22,7 +22,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
 
     return (
         <div className="layout-topbar">
-            <button ref={menubuttonRef} type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>
+            <button  type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>
                 <i className="pi pi-bars" />
             </button>
 
@@ -50,7 +50,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                     <i className="pi pi-user"></i>
                     <span>Profile</span>
                 </button>
-                <button type="button" className="p-link layout-topbar-button" onClick={() => {signOut({callbackUrl: "/auth/login"})}}>
+                <button type="button" className="p-link layout-topbar-button" onClick={() => {signOut({callbackUrl: "/login"})}}>
                     <i className="pi pi-sign-out"></i>
                     <span>Settings</span>
                 </button>

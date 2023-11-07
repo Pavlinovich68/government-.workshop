@@ -1,13 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import React, {useContext, useRef, useState} from 'react';
-import type {FormEventHandler} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {$app_variables} from "../../../../app.variables";
+import {$app_variables} from "@/app.variables";
 import {signIn, useSession} from "next-auth/react";
-import {Context} from "preact/compat";
-import {AuthContext} from "@/layout/layout";
-import {IDivision} from "@/models/IDivision";
 
 
 const LoginPage = () => {
@@ -16,20 +12,20 @@ const LoginPage = () => {
       email: '',
       password: '',
    })
-   const [rest, setRest] = useState<string>('')
-   const shift = useRef<HTMLDivElement>(null);
+   const [rest, setRest] = useState('')
+   //const shift = useRef<HTMLDivElement>(null);
    const searchParams = useSearchParams();
 
    const session = useSession();
+
    const router = useRouter();
-
-   if (session.status == "authenticated"){
+   useEffect(()=> {if (session.status == "authenticated"){
       router?.push("/")
-   }
+   }})
 
 
 
-   const handleSubmit = async (e: any) => {
+   const handleSubmit = async (e) => {
       e.preventDefault();
       signIn('credentials', {
          email: data.email,
@@ -52,7 +48,7 @@ const LoginPage = () => {
    return (
       <React.Fragment>
             <div className="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-               {session.status !== "authenticated" ? <div ref={shift} className="itr-login-form">
+               {session.status !== "authenticated" ? <div className="itr-login-form">
                   <div className="itr-form-container itr-sign-up-container">
                         <form action="#">
                            <h1>Восстановление пароля</h1>

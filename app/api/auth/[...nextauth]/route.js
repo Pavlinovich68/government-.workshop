@@ -12,9 +12,10 @@ export const authOptions = {
       CredentialsProvider({
          name: "credentials",
          credentials: {
+            username: { label: "Username", type: "text", placeholder: "Имя пользователя"},
             password: { label: "Password", type: "password" },
             email: {label: "Email", type: "email" },
-            roles: {label: "Roles", type: "json"}
+            //roles: {label: "Roles", type: "json"}
          },
          async authorize(credentials) {
             if(!credentials.email || !credentials.password) {
@@ -41,6 +42,9 @@ export const authOptions = {
          }
       })
    ],
+   session: {
+      strategy: "jwt"
+   },
    callbacks: {
       async jwt({token, user, session}){
          console.log('JWT Callback', {token, user, session});
@@ -51,34 +55,10 @@ export const authOptions = {
          return session;
       }
    },
-   session: {
-      strategy: "jwt"
-   },
    secret: process.env.NEXTAUTH_SECRET,
    debug: process.env.NODE_ENV === "development"
 }
 
 const handler = NextAuth(authOptions);
-
-// const handler = NextAuth({
-//    providers: [
-//       CredentialsProvider({
-//             id: "credentials",
-//             name: "Credentials",
-//             async authorize(credentials){
-//                try {
-//                   const isPassEquals = await bcrypt.compare(credentials.password, credentials.hash);
-//                   if (!isPassEquals) {
-//                      throw ApiError.BadRequest('Неверный пароль')
-//                   }
-
-//                   return {email: credentials.email, name: credentials.name, password: credentials.hash };
-//                }  catch (error) {
-//                   throw new Error(error);
-//                }
-//             }
-//       })
-//    ]
-// });
 
 export { handler as GET, handler as POST }
