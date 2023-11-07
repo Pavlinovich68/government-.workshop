@@ -12,11 +12,31 @@ export const authOptions = {
       CredentialsProvider({
          name: "credentials",
          credentials: {
-            username: { label: "Username", type: "text", placeholder: "hfkjsd" },
-            password: { label: "Password", type: "password" }
+            password: { label: "Password", type: "password" },
+            email: {label: "Email", type: "email" }
          },
          async authorize(credentials) {
+            if(!credentials.email || !credentials.password) {
+               return null;
+            }
 
+            const user = await prisma.users.findUnique({
+               where: {
+                  email: credentials.email
+               }
+            });
+
+            if (!user) {
+               return null;
+            }
+
+            const passwordsMatch = await bcrypt.compare(credentials.password, user.password);
+
+            if (!passwordsMatch) {
+               return null;
+            }
+
+            return user;
          }
       })
    ],

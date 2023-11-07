@@ -4,15 +4,15 @@ import {SessionProvider} from "next-auth/react";
 import Store from "@/store/store";
 
 interface SimpleLayoutProps {
-    children: React.ReactNode;
+   children: React.ReactNode;
 }
 
 export default function SimpleLayout({ children }: SimpleLayoutProps) {
-    return (
-        <React.Fragment>
+   return (
+      <React.Fragment>
             <SessionProvider>
-                    {children}
+                  {children}
             </SessionProvider>
-        </React.Fragment>
-    );
+      </React.Fragment>
+   );
 }
