@@ -11,9 +11,11 @@ import {IDivision} from "@/models/IDivision";
 
 
 const LoginPage = () => {
-   const {store} = useContext(AuthContext);
-   const [email, setEmail] = useState<string>('')
-   const [password, setPassword] = useState<string>('')
+   const [data, setData] = useState({
+      name: '',
+      email: '',
+      password: '',
+   })
    const [rest, setRest] = useState<string>('')
    const shift = useRef<HTMLDivElement>(null);
    const searchParams = useSearchParams();
@@ -25,45 +27,16 @@ const LoginPage = () => {
       router?.push("/")
    }
 
-   console.log('store', store)
-
-   async function getUser(email: string) {
-      const res = await fetch(`http://localhost:3000/api/users/${email}`, {
-            cache: "no-store",
-      });
-
-      if (!res.ok) {
-            throw new Error("Failed to fetch data");
-      }
-
-      return await res.json();
-   }
 
 
    const handleSubmit = async (e: any) => {
       e.preventDefault();
       signIn('credentials', {
-         email,
-         password,
+         email: data.email,
+         password: data.password,
          redirect: false,
       });
       router?.push("/");
-      //   const user = await getUser(email);
-      //   if (user.status === 'success') {
-      //       console.log('user', user);
-      //       /*id?: number;
-      //       email?: string,
-      //           division?: IDivision,
-      //           name: string,
-      //           begin_date: Date,
-      //           end_date?: Date
-      //       roles: any[];*/
-      //       const id = user.result.id;
-      //       const name = user.result.name;
-      //       const hash = user.result.password;
-
-      //       await signIn('credentials', { id, name, email, password, hash });
-      // }
    }
 
    const rightToLeft = () => {
@@ -90,9 +63,9 @@ const LoginPage = () => {
                   <div className="itr-form-container itr-sign-in-container">
                         <form action="#" onSubmit={handleSubmit}>
                            <h1>Вход в систему</h1>
-                           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}/>
-                           <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}/>
-                           <button disabled={!email || !password} type='submit'>Войти</button>
+                           <input type="email" placeholder="Email" value={data.email} onChange={e => setData({...data, email: e.target.value})}/>
+                           <input type="password" placeholder="Password" value={data.password} onChange={e => setData({...data, password: e.target.value})}/>
+                           <button disabled={!data.email || !data.password} type='submit'>Войти</button>
                         </form>
                   </div>
                   <div className="itr-overlay-container">
@@ -114,7 +87,7 @@ const LoginPage = () => {
                </div> : <i className="pi pi-spin pi-spinner" style={{ fontSize: '10rem', color: '#326fd1'}}></i> }
             </div>
       </React.Fragment>
-    );
+   );
 };
 
 export default LoginPage;
