@@ -6,26 +6,26 @@ import {router} from "next/client";
 import {useRouter} from "next/navigation";
 
 const Dashboard = () => {
-    const session = useSession();
+   const {data: session, status, update} = useSession();
 
-    console.log('session:', session)
+   console.log('useSession Hook session object', session)
 
-    return (
-        <div className="grid">
+   return (
+      <div className="grid">
             <div className="col-12 lg:col-6 xl:col-3">
-                <div className="card mb-0">
-                    <div className="flex justify-content-between mb-3">
+               <div className="card mb-0">
+                  <div className="flex justify-content-between mb-3">
                         <div>
-                            <span className="block text-500 font-medium mb-3">{session.status} - {JSON.stringify(session.data?.user.password)}</span>
+                           <span className="block text-500 font-medium mb-3">{status} - {JSON.stringify(session?.user.email)}</span>
                         </div>
                         <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
-                            {session.data && <img src={session.data?.user?.image??""} width={100} height={100} alt=""/>}
+                           {session && <img src={session?.user?.image??""} width={100} height={100} alt=""/>}
                         </div>
-                    </div>
-                </div>
+                  </div>
+               </div>
             </div>
-        </div>
-    );
+      </div>
+   );
 };
 
 export default Dashboard;

@@ -13,7 +13,8 @@ export const authOptions = {
          name: "credentials",
          credentials: {
             password: { label: "Password", type: "password" },
-            email: {label: "Email", type: "email" }
+            email: {label: "Email", type: "email" },
+            roles: {label: "Roles", type: "json"}
          },
          async authorize(credentials) {
             if(!credentials.email || !credentials.password) {
@@ -40,6 +41,16 @@ export const authOptions = {
          }
       })
    ],
+   callbacks: {
+      async jwt({token, user, session}){
+         console.log('JWT Callback', {token, user, session});
+         return token;
+      },
+      async session({session, token, user}){
+         console.log('Session Callback', {session, token, user});
+         return session;
+      }
+   },
    session: {
       strategy: "jwt"
    },
