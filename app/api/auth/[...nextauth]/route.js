@@ -15,7 +15,7 @@ export const authOptions = {
             username: { label: "Username", type: "text", placeholder: "Имя пользователя"},
             password: { label: "Password", type: "password" },
             email: {label: "Email", type: "email" },
-            //roles: {label: "Roles", type: "json"}
+            roles: {label: "Roles", type: "json"}
          },
          async authorize(credentials) {
             if(!credentials.email || !credentials.password) {
@@ -46,12 +46,21 @@ export const authOptions = {
       strategy: "jwt"
    },
    callbacks: {
-      async jwt({token, user, session}){
-         console.log('JWT Callback', {token, user, session});
+      async jwt({token, user, session, account}){
+         //token.password = user.password;
+         console.log('JWT Callback', {token, user, session, account});
+         if (user) {
+            token.division_id = user.division_id;
+            token.roles = user.roles;
+         }
          return token;
       },
-      async session({session, token, user}){
+      async session({session, user, token}){
          console.log('Session Callback', {session, token, user});
+         if (token) {
+            session.user.division_id = token.division_id;
+            session.user.roles = token.roles;
+         }
          return session;
       }
    },
