@@ -24,25 +24,6 @@ const AppMenu = () => {
    }
 
    const model = [
-      /*{
-            label: 'Календари',
-            items: [{ label: 'Дашборд', icon: 'pi pi-fw pi-chart-bar', to: '/' }]
-      },
-      {
-            label: '',
-            seperator: true
-      },
-      {
-            label: 'Администрирование',
-            visible: true,//checkRoles(['admin']),
-            items: [
-               {
-                  label: 'Пользователи',
-                  icon: 'pi pi-fw pi-id-card',
-                  to: '/pages/users'
-               }
-            ]
-      },*/
       {
             label: 'Справочники',
             visible: checkRoles(['admin']),
@@ -50,7 +31,7 @@ const AppMenu = () => {
                {
                   label: 'Подразделения',
                   icon: 'pi pi-fw pi-sitemap',
-                  to: '/pages/references/divisions'
+                  to: '/workplace/references/divisions'
                },
                {
                   visible: checkRoles(['admin']),
@@ -65,19 +46,9 @@ const AppMenu = () => {
                }
             ]
       },
-      /*{
-            label: 'Рабочая область',
-            visible: true,//checkRoles(['admin', 'expert']),
-            items: [
-               {
-                  label: 'Объекты строительства',
-                  icon: 'pi pi-fw pi-building'
-               }
-            ]
-      }*/
    ];
 
-
+// TODO Меню
    return (
       <MenuProvider>
             <ul className="layout-menu">

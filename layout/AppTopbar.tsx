@@ -7,6 +7,7 @@ import { AppTopbarRef } from '../types/types';
 import { LayoutContext } from './context/layoutcontext';
 import Image from "next/image";
 import {signOut} from "next-auth/react";
+import { SplitButton } from 'primereact/splitbutton';
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
    const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
@@ -22,7 +23,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
 
    return (
       <div className="layout-topbar">
-            <button  type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>
+            <button  type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle} title='Menubar'>
                <i className="pi pi-bars" />
             </button>
 
@@ -37,7 +38,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                <span>Центр коммуникаций Правительства Челябинской области</span>
             </Link>
 
-            <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={showProfileSidebar}>
+            <button ref={topbarmenubuttonRef} type="button" className="p-link layout-topbar-menu-button layout-topbar-button" onClick={showProfileSidebar} title='Dropdown'>
                <i className="pi pi-ellipsis-v" />
             </button>
 

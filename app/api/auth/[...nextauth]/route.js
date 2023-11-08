@@ -25,7 +25,8 @@ export const authOptions = {
             const user = await prisma.users.findUnique({
                where: {
                   email: credentials.email
-               }
+               },
+               include: { division: true }
             });
 
             if (!user) {
@@ -51,6 +52,7 @@ export const authOptions = {
          console.log('JWT Callback', {token, user, session, account});
          if (user) {
             token.division_id = user.division_id;
+            token.division_name = user.division?.name
             token.roles = user.roles;
          }
          return token;
@@ -59,6 +61,7 @@ export const authOptions = {
          console.log('Session Callback', {session, token, user});
          if (token) {
             session.user.division_id = token.division_id;
+            session.user.division_name = token.division_name;
             session.user.roles = token.roles;
          }
          return session;

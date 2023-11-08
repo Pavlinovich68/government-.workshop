@@ -100,78 +100,77 @@ const Layout = ({ children }: ChildContainerProps) => {
       unbindProfileMenuOutsideClickListener();
    };
 
-  const blockBodyScroll = (): void => {
-    if (document.body.classList) {
-      document.body.classList.add("blocked-scroll");
-    } else {
-      document.body.className += " blocked-scroll";
-    }
-  };
+   const blockBodyScroll = (): void => {
+      if (document.body.classList) {
+         document.body.classList.add("blocked-scroll");
+      } else {
+         document.body.className += " blocked-scroll";
+      }
+   };
 
-  const unblockBodyScroll = (): void => {
-    if (document.body.classList) {
-      document.body.classList.remove("blocked-scroll");
-    } else {
-      document.body.className = document.body.className.replace(
-        new RegExp(
-          "(^|\\b)" + "blocked-scroll".split(" ").join("|") + "(\\b|$)",
-          "gi"
-        ),
-        " "
-      );
-    }
-  };
+   const unblockBodyScroll = (): void => {
+      if (document.body.classList) {
+         document.body.classList.remove("blocked-scroll");
+      } else {
+         document.body.className = document.body.className.replace(
+            new RegExp("(^|\\b)" + "blocked-scroll".split(" ").join("|") + "(\\b|$)",
+               "gi"
+            ),
+            " "
+         );
+      }
+   };
 
-  useMountEffect(() => {
-    setRipple(layoutConfig.ripple);
-  });
+   useMountEffect(() => {
+      setRipple(layoutConfig.ripple);
+   });
 
-  useEffect(() => {
-    if (layoutState.overlayMenuActive || layoutState.staticMenuMobileActive) {
-      bindMenuOutsideClickListener();
-    }
+   useEffect(() => {
+      if (layoutState.overlayMenuActive || layoutState.staticMenuMobileActive) {
+         bindMenuOutsideClickListener();
+      }
 
-    layoutState.staticMenuMobileActive && blockBodyScroll();
-  }, [layoutState.overlayMenuActive, layoutState.staticMenuMobileActive]);
+      layoutState.staticMenuMobileActive && blockBodyScroll();
+   }, [layoutState.overlayMenuActive, layoutState.staticMenuMobileActive]);
 
-  useEffect(() => {
-    if (layoutState.profileSidebarVisible) {
-      bindProfileMenuOutsideClickListener();
-    }
-  }, [layoutState.profileSidebarVisible]);
+   useEffect(() => {
+      if (layoutState.profileSidebarVisible) {
+         bindProfileMenuOutsideClickListener();
+      }
+   }, [layoutState.profileSidebarVisible]);
 
-  useUnmountEffect(() => {
-    unbindMenuOutsideClickListener();
-    unbindProfileMenuOutsideClickListener();
-  });
+   useUnmountEffect(() => {
+      unbindMenuOutsideClickListener();
+      unbindProfileMenuOutsideClickListener();
+   });
 
-  const containerClass = classNames("layout-wrapper", {
-    "layout-overlay": layoutConfig.menuMode === "overlay",
-    "layout-static": layoutConfig.menuMode === "static",
-    "layout-static-inactive":
+   const containerClass = classNames("layout-wrapper", {
+      "layout-overlay": layoutConfig.menuMode === "overlay",
+      "layout-static": layoutConfig.menuMode === "static",
+      "layout-static-inactive":
       layoutState.staticMenuDesktopInactive &&
       layoutConfig.menuMode === "static",
-    "layout-overlay-active": layoutState.overlayMenuActive,
-    "layout-mobile-active": layoutState.staticMenuMobileActive,
-    "p-input-filled": layoutConfig.inputStyle === "filled",
-    "p-ripple-disabled": !layoutConfig.ripple,
-  });
+      "layout-overlay-active": layoutState.overlayMenuActive,
+      "layout-mobile-active": layoutState.staticMenuMobileActive,
+      "p-input-filled": layoutConfig.inputStyle === "filled",
+      "p-ripple-disabled": !layoutConfig.ripple,
+   });
 
-  return (
+   return (
       <AuthContext.Provider value={{ store }}>
-        <div className={containerClass} style={{visibility: session.status === "authenticated" ? 'visible' : 'hidden'}}>
-          <AppTopbar ref={topbarRef} />
-          <div ref={sidebarRef} className="layout-sidebar">
-            <AppSidebar />
-          </div>
-          <div className="layout-main-container">
-            <div className="layout-main">{children}</div>
-            <AppFooter />
-          </div>
-          <div className="layout-mask"></div>
-        </div>
+         <div className={containerClass} style={{visibility: session.status === "authenticated" ? 'visible' : 'hidden'}}>
+               <AppTopbar ref={topbarRef} />
+               <div ref={sidebarRef} className="layout-sidebar">
+                  <AppSidebar />
+               </div>
+               <div className="layout-main-container">
+               <div className="layout-main">{children}</div>
+               <AppFooter />
+            </div>
+            <div className="layout-mask"></div>
+         </div>
       </AuthContext.Provider>
-  );
+   );
 };
 
 export default Layout;
