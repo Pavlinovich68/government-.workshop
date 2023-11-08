@@ -76,6 +76,7 @@ export interface MenuModel {
     label: string;
     icon?: string;
     items?: MenuModel[];
+    roles?: string[];
     to?: string;
     url?: string;
     target?: HTMLAttributeAnchorTarget;
