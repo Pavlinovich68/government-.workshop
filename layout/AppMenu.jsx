@@ -13,21 +13,14 @@ const AppMenu = () => {
 
    const { layoutConfig } = useContext(LayoutContext);
 
-   const checkRoles = (a, b) => {
-      if (!b) {
+   const checkRoles = (accessRoles) => {
+      const userRoles = session?.user?.roles;
+      if (!userRoles) {
          return false;
       }
-      const bArray = Object.keys(b);
-      const intersection = a.filter(x => bArray.includes(x));
+      const roles = Object.keys(userRoles);
+      const intersection = accessRoles.filter(x => roles.includes(x));
       return intersection.length > 0
-   }
-   const getMenuItem = (item) => {
-      if (item.seperator) {
-         return;
-      }
-      if (Object.hasOwn(item, 'roles') && item.roles !== null && checkRoles(item.roles, session?.user?.roles)){
-
-      }
    }
 
    const model = [
@@ -52,7 +45,7 @@ const AppMenu = () => {
       },*/
       {
             label: 'Справочники',
-            visible: true,
+            visible: checkRoles(['admin']),
             items: [
                {
                   label: 'Подразделения',
@@ -60,7 +53,7 @@ const AppMenu = () => {
                   to: '/pages/references/divisions'
                },
                {
-                  visible: false,
+                  visible: checkRoles(['admin']),
                   label: 'Здания',
                   icon: 'pi pi-fw pi-building',
                   to: '/pages/references/buildings'
