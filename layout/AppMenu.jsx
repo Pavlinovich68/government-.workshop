@@ -23,7 +23,25 @@ const AppMenu = () => {
       return intersection.length > 0
    }
 
+   const reserveHoll = () => {
+      return [];
+   }
+
+   const reserveConf = () => {
+      return [];
+   }
+
    const model = [
+      {
+         label: 'Совещательные залы',
+         visible: checkRoles(['admin', 'reserve-holl']),
+         items: reserveHoll() 
+      },
+      {
+         label: 'Комнаты ВКС',
+         visible: checkRoles(['admin', 'reserve-conf']),
+         items: reserveConf()
+      },
       {
             label: 'Справочники',
             visible: checkRoles(['admin']),

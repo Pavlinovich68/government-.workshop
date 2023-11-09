@@ -1,6 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// TODO Prisma
 datasource db {
    provider = "postgresql"
    url      = env("DATABASE_URL")
@@ -40,6 +40,7 @@ model division {
    id         Int        @id @default(autoincrement())
    name       String?    @unique(map: "division_u_ind") @db.VarChar(200)
    short_name String?    @db.VarChar(20)
+   contacts   String?    @db.VarChar(300)
    parent_id  Int?
    parent     division?  @relation("divisionTodivision", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
    childrens  division[] @relation("divisionTodivision")
