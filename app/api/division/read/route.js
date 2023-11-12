@@ -1,37 +1,10 @@
 import prisma from "../../../../prisma/client";
 import {NextResponse} from "next/server";
 
-export const GET = async (request, {params}) => {
-   const readNode = async (id, search) => {
-      const {filter} = {parent_id: id};
-      if (search) {
-            filter = {
-               OR: [
-                  {
-                     name: {
-                        contains: search,
-                        mode: 'insensitive',
-                     },
-                  },
-                  {
-                     short_name: {
-                        contains: search,
-                        mode: 'insensitive',
-                     },
-                  },
-                  {
-                     contacts: {
-                        contains: search,
-                        mode: 'insensitive',
-                     },
-                  },
-               ],
-               AND: [{parent_id: id}]
-         }
-      }
-
+export const GET = async (req) => {
+   const readNode = async (id) => {
       const data = await prisma.division.findMany({
-         where : filter,
+         where : {parent_id: id},
          orderBy: {
             name: 'asc'
          }
@@ -39,7 +12,7 @@ export const GET = async (request, {params}) => {
 
       const result = data.map((item) => {
          return {
-            key: `${id}-${item.id}`,
+            key: `${id??0}-${item.id}`,
             id: item.id,
             name: item.name,
             short_name: item.short_name,
@@ -48,14 +21,14 @@ export const GET = async (request, {params}) => {
       });
 
       for (const node of result) {
-         result.childrens = await readNode(node.id, search);
+         node.childrens = await readNode(node.id);
       }
       return result;
    }
 
    try {
-      const result = await readNode(null, params);
-
+      //const params = req.nextUrl.searchParams.get('search');
+      const result = await readNode(null);
       let json_response = {
             status: "success",
             result,
