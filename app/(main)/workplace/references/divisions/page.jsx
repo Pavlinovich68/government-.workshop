@@ -24,7 +24,7 @@ const Divisions = () => {
       });
 
       return (
-         <button type="button" className="p-treetable-toggler p-link" style={options.buttonStyle} tabIndex={-1} onClick={options.onClick}>
+         <button type="button" className="p-treetable-toggler p-link" style={options.buttonStyle} tabIndex={-1} onClick={options.onClick} aria-label="1">
             <span className={iconClassName} aria-hidden="true"></span>
          </button>
       );
