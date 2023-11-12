@@ -1,6 +1,5 @@
 import { Extensions } from "@prisma/client/runtime/library";
 import prisma from "./client";
-import crypto from "./crypt";
 import {appRoles} from "./roles";
 import bcrypt from "bcrypt";
 
