@@ -1,7 +1,7 @@
-export interface IDivision {
+export interface Division {
    id?: number;
    name?: string;
    short_name?: string;
    contacts?: string;
-   childrens?: IDivision[];
+   childrens?: Division[];
 }

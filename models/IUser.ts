@@ -1,4 +1,4 @@
-import {IDivision} from "@/models/IDivision";
+import {IDivision} from "@/models/Division";
 
 export interface IUser {
     id?: number;

@@ -6,7 +6,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { ICardRef } from '../../../../../models/ICardRef'
 import {useFormik} from "formik";
-import {IDivision} from "../../../../../models/IDivision";
+import {Division} from "../../../../../models/Division";
 
 async function getData() {
    const res = await fetch('http://localhost:3000/api/division/read', {
@@ -23,7 +23,8 @@ async function getData() {
 }
 
 const Divisions = () => {
-   const emptyDivision: IDivision = {}
+   //const emptyDivision: Division = {id: 0, name: "", short_name: "", contacts: "", childrens: []};
+   const [emptyDivision, setEmptyDivision] = useState<Division>({});
    const [divisions, setDivisions] = useState([]);
    const [globalFilter, setGlobalFilter] = useState('');
    const editor = useRef<ICardRef>(null);
