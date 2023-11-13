@@ -48,8 +48,6 @@ export const authOptions = {
    },
    callbacks: {
       async jwt({token, user, session, account}){
-         //token.password = user.password;
-         console.log('JWT Callback', {token, user, session, account});
          if (user) {
             token.division_id = user.division_id;
             token.division_name = user.division?.name
@@ -58,7 +56,6 @@ export const authOptions = {
          return token;
       },
       async session({session, user, token}){
-         console.log('Session Callback', {session, token, user});
          if (token) {
             session.user.division_id = token.division_id;
             session.user.division_name = token.division_name;

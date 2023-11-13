@@ -8,18 +8,18 @@ import '../styles/layout/layout.scss';
 import '../styles/pages/code.scss';
 
 interface RootLayoutProps {
-    children: React.ReactNode;
+   children: React.ReactNode;
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-    return (
-        <html lang="en" suppressHydrationWarning>
+   return (
+      <html lang="en" suppressHydrationWarning>
             <head>
-                <link id="theme-css" href={`/themes/bootstrap4-dark-blue/theme.css`} rel="stylesheet"></link>
+               <link id="theme-css" href={`/themes/bootstrap4-dark-blue/theme.css`} rel="stylesheet"></link>
             </head>
             <body>
-                <PrimeReactProvider>
-                    <LayoutProvider>{children}</LayoutProvider>
+               <PrimeReactProvider>
+                  <LayoutProvider>{children}</LayoutProvider>
                 </PrimeReactProvider>
             </body>
         </html>

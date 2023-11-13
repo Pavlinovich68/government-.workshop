@@ -1,37 +1,43 @@
-import prisma from "../../../../prisma/client";
 import {NextResponse} from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-export const GET = async (req) => {
-   const readNode = async (id) => {
-      const data = await prisma.division.findMany({
-         where : {parent_id: id},
-         orderBy: {
-            name: 'asc'
-         }
-      });
+const prisma = new PrismaClient();
 
-      const result = data.map((item) => {
-         return {
-            key: `${id??0}-${item.id}`,
+const readNode = async (id) => {
+   const data = await prisma.division.findMany({
+      where : {parent_id: id},
+      orderBy: {
+         name: 'asc'
+      }
+   });
+
+   const result = data.map((item) => {
+      return {
+         key: `${id??0}-${item.id}`,
+         data: {
             id: item.id,
             name: item.name,
             short_name: item.short_name,
             contacts: item.contacts
          }
-      });
-
-      for (const node of result) {
-         node.childrens = await readNode(node.id);
       }
-      return result;
+   });
+
+   for (const node of result) {
+      node.children = await readNode(node.data.id);
    }
 
+   console.log('Read divisions in route.js', result)
+
+   return result;
+}
+
+export const GET = async (req) => {
    try {
-      //const params = req.nextUrl.searchParams.get('search');
       const result = await readNode(null);
       let json_response = {
             status: "success",
-            result,
+            result: result,
       };
       return NextResponse.json(json_response);
    } catch (error) {

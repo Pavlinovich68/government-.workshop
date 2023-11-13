@@ -6,8 +6,6 @@ import {useSession} from "next-auth/react";
 const MainWorkplace = () => {
    const {data: session, status} = useSession();
 
-   console.log('useSession Hook session object', session)
-
    return (
       <div className="grid">
             <div className="col-12 lg:col-6 xl:col-3">
