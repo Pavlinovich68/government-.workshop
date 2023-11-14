@@ -43,27 +43,39 @@ const AppMenu = () => {
          items: reserveConf()
       },
       {
-            label: 'Справочники',
-            visible: checkRoles(['admin']),
-            items: [
-               {
-                  label: 'Подразделения',
-                  icon: 'pi pi-fw pi-sitemap',
-                  to: '/workplace/references/divisions'
-               },
-               {
-                  visible: checkRoles(['admin']),
-                  label: 'Здания',
-                  icon: 'pi pi-fw pi-building',
-                  to: '/pages/references/buildings'
-               },
-               {
-                  label: 'Совещательные залы',
-                  icon: 'pi pi-fw pi-volume-up',
-                  to: '/pages/references/halls'
-               }
-            ]
+         label: 'Справочники',
+         visible: checkRoles(['admin']),
+         items: [
+            {
+               label: 'Подразделения',
+               icon: 'pi pi-fw pi-sitemap',
+               to: '/workplace/references/divisions'
+            },
+            {
+               visible: checkRoles(['admin']),
+               label: 'Здания',
+               icon: 'pi pi-fw pi-building',
+               to: '/pages/references/buildings'
+            },
+            {
+               label: 'Совещательные залы',
+               icon: 'pi pi-fw pi-volume-up',
+               to: '/pages/references/halls'
+            }
+         ]
       },
+      {
+         label: 'Администрирование',
+         visible: checkRoles(['admin']),
+         items: [
+            {
+               label: 'Пользователи',
+               visible: checkRoles(['admin']),
+               icon: 'pi pi-fw pi-user',
+               to: '/workplace/admin/users'
+            }
+         ]
+      }
    ];
 
 // TODO Меню
