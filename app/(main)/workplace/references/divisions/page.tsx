@@ -12,9 +12,10 @@ import {Toast} from "primereact/toast";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import ItrCard from "@/components/ItrCard";
 import { Tooltip } from 'primereact/tooltip';
+import {classNames} from "primereact/utils";
 
 async function getData() {
-   const res = await fetch('http://localhost:3000/api/division/read', {
+   const res = await fetch('/api/division/read', {
       cache: "no-store"
    });
 
@@ -67,15 +68,40 @@ const Divisions = () => {
 
    const card = () => {
       return (
-          <form onSubmit={saveDivision}>
-
-          </form>
+         <form onSubmit={saveDivision}>
+            <div className="card p-fluid">
+               <div className="p-fluid formgrid grid">
+                  <div className="field col-12">
+                     <label htmlFor="name">Наименование подразделения</label>
+                     <InputText id="name"  placeholder="Наименование"
+                                          className={classNames({"p-invalid": submitted && !division.values.name})}
+                                          value={division.values.name}
+                                          onChange={(e) => division.setFieldValue('name', e.target.value)} required autoFocus type="text"/>
+                  </div>
+                  <div className="field col-12 md:col-6">
+                     <label htmlFor="short_name">Короткое наименование</label>
+                     <InputText id="short_name"  placeholder="Короткое наименование"
+                                       className={classNames({"p-invalid": submitted && !division.values.short_name})}
+                                       value={division.values.short_name}
+                                       onChange={(e) => division.setFieldValue('short_name', e.target.value)} required autoFocus type="text"/>
+                  </div>
+                  <div className="field col-12 md:col-6">
+                     <label htmlFor="contacts">Контактная информация</label>
+                     <InputText id="contacts" placeholder="Контактная информация"
+                                       value={division.values.contacts}
+                                       onChange={(e) => division.setFieldValue('contacts', e.target.value)} required autoFocus type="text"/>
+                  </div>
+               </div>
+            </div>
+         </form>
       );
    }
    //#endregion
+
    //#region CRUD
-   const createDivision = () => {
+   const createDivision = (data: Division | null) => {
       setCardHeader('Создание нового подразделения');
+      emptyDivision.parent_id = data?.id;
       division.setValues(emptyDivision);
       setRecordState(RecordState.new);
       setSubmitted(false);
@@ -94,6 +120,9 @@ const Divisions = () => {
       }
    }
 
+   const deleteDivision = (data: Division) => {
+   }
+
    const saveDivision = async () => {
       setSubmitted(true);
       if (!division.isValid) {
@@ -108,11 +137,10 @@ const Divisions = () => {
                </div>
                {errors.map((item) => {
                   return (
-                      // eslint-disable-next-line react/jsx-key
-                      <p className="flex align-items-left m-0">
-                         {/* @ts-ignore */}
-                         {item}
-                      </p>)
+                     // eslint-disable-next-line react/jsx-key
+                     <p className="flex align-items-left m-0">
+                        {item}
+                     </p>)
                })
                }
             </div>),
@@ -121,8 +149,43 @@ const Divisions = () => {
          return;
       }
       try {
-         //recordState == RecordState.new ? await ... : await ...;
-         // tree reload
+         if (recordState === RecordState.new) {
+            const res = await fetch("/api/division/create", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json",
+               },
+               body: JSON.stringify({
+                  name: division.values.name,
+                  short_name: division.values.short_name,
+                  contacts: division.values.contacts,
+                  parent_id: division.values.parent_id
+               }),
+            });
+         } else {
+            const res = await fetch("/api/division/update", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json",
+               },
+               body: JSON.stringify({
+                  id: division.values.id,
+                  name: division.values.name,
+                  short_name: division.values.short_name,
+                  contacts: division.values.contacts
+               }),
+            });
+         }
+         const reader = async () => {
+            const result = await getData();
+            return result;
+         }
+         reader().then((innerData) => {
+            setDivisions(innerData)
+         });
+         if (editor.current) {
+            editor.current.visible(false);
+         }
       } catch (e: any) {
          toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
       }
@@ -133,17 +196,27 @@ const Divisions = () => {
       return (
          <div className="flex flex-wrap gap-2">
             <Button type="button" icon="pi pi-pencil" severity="info" rounded tooltip="Редактировать" tooltipOptions={{position: "bottom"}} onClick={() => editDivision(item?.data)}></Button>
-            <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision()}></Button>
+            <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision(item?.data)}></Button>
+            <Button type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => deleteDivision(item?.data)}></Button>
          </div>
       );
    };
 
    const getHeader = () => {
       return (
-         <div className="flex justify-content-end">
-            <div className="p-input-icon-left">
-               <i className="pi pi-search"></i>
-               <InputText type="search" onInput={(e) => setGlobalFilter((e.target as HTMLInputElement).value)} placeholder="Поиск" />
+         <div className="grid">
+            <div className="col-6">
+               <div className="flex justify-content-start">
+                  <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision(null)}></Button>
+               </div>
+            </div>
+            <div className="col-6">
+               <div className="flex justify-content-end">
+                  <div className="p-input-icon-left">
+                     <i className="pi pi-search"></i>
+                     <InputText type="search" onInput={(e) => setGlobalFilter((e.target as HTMLInputElement).value)} placeholder="Поиск" />
+                  </div>
+               </div>
             </div>
          </div>
       );
@@ -160,14 +233,14 @@ const Divisions = () => {
                   <Column field="name" header="Наименование структурного подразделения" expander style={{width: '60%'}}></Column>
                   <Column field="short_name" header="Короткое наименование" style={{width: '15rem'}}></Column>
                   <Column field="contacts" header="Контактная информация"></Column>
-                  <Column body={actionTemplate} style={{width: "120px"}} />
+                  <Column body={actionTemplate} style={{width: "165px"}} />
                </TreeTable>
                <ItrCard
-                   header={cardHeader}
-                   dialogStyle={{ width: '50vw' }}
-                   save={saveDivision}
-                   body={card()}
-                   ref={editor}
+                  header={cardHeader}
+                  dialogStyle={{ width: '50vw' }}
+                  save={saveDivision}
+                  body={card()}
+                  ref={editor}
                />
                <ConfirmDialog />
                <Toast ref={toast} />
