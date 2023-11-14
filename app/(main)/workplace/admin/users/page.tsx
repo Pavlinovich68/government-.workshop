@@ -1,5 +1,6 @@
 'use client'
 import React, {useEffect, useRef, useState} from "react";
+import {DataTable, DataTableSortMeta, DataTableStateEvent} from "primereact/datatable";
 
 const Users = () => {
    return (
