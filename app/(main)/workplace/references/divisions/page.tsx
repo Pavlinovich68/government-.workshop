@@ -13,6 +13,7 @@ import {ConfirmDialog} from "primereact/confirmdialog";
 import ItrCard from "@/components/ItrCard";
 import { Tooltip } from 'primereact/tooltip';
 import {classNames} from "primereact/utils";
+import { ConfirmPopup } from 'primereact/confirmpopup';
 
 async function getData() {
    const res = await fetch('/api/division/read', {
@@ -37,6 +38,8 @@ const Divisions = () => {
    const [cardHeader, setCardHeader] = useState('');
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
+   const [visibleConfirm, setVisibleConfirm] = useState(false);
+   const dropButton = useRef(null)
 
    useEffect(() => {
       const reader = async () => {
@@ -120,7 +123,25 @@ const Divisions = () => {
       }
    }
 
-   const deleteDivision = (data: Division) => {
+   const deleteDivision = async (data: Division) => {
+      console.log('Division:', data);
+      const res = await fetch("/api/division/delete", {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify({
+            id: data.id
+         }),
+      });
+
+      const reader = async () => {
+         const result = await getData();
+         return result;
+      }
+      reader().then((innerData) => {
+         setDivisions(innerData)
+      });
    }
 
    const saveDivision = async () => {
@@ -197,7 +218,17 @@ const Divisions = () => {
          <div className="flex flex-wrap gap-2">
             <Button type="button" icon="pi pi-pencil" severity="info" rounded tooltip="Редактировать" tooltipOptions={{position: "bottom"}} onClick={() => editDivision(item?.data)}></Button>
             <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision(item?.data)}></Button>
-            <Button type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => deleteDivision(item?.data)}></Button>
+            <Button ref={dropButton} type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => setVisibleConfirm(true)}></Button>
+            <ConfirmPopup
+               visible={visibleConfirm}
+               onHide={() => setVisibleConfirm(false)}
+               message="Вы действительно хотите удалить текущую запись?"
+               icon="pi pi-exclamation-triangle"
+               //@ts-ignore
+               target={dropButton.current}
+               acceptLabel="Да"
+               rejectLabel="Нет"
+               accept={() => deleteDivision(item?.data)}/>
          </div>
       );
    };

@@ -2,7 +2,7 @@ import React, {forwardRef, Ref, useImperativeHandle, useState, useRef} from "rea
 import {Dialog} from "primereact/dialog";
 import {Button} from "primereact/button";
 import {ICardRef} from "../models/ICardRef";
-import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { ConfirmPopup } from 'primereact/confirmpopup';
 
 const ItrCard = ({header, dialogStyle, body, save, hiddenSave = false} : any, ref: Ref<ICardRef>) => {
    const [editorVisible, setEditorVisible] = useState<boolean>(false);
@@ -27,6 +27,8 @@ const ItrCard = ({header, dialogStyle, body, save, hiddenSave = false} : any, re
             icon="pi pi-exclamation-triangle"
             //@ts-ignore
             target={saveButton.current}
+            acceptLabel="Да"
+            rejectLabel="Нет"
             accept={save}/>
       </div>
    );
