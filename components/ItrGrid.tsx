@@ -1,5 +1,5 @@
 import {DataTable, DataTableSortMeta, DataTableStateEvent} from "primereact/datatable";
-import gridTools from "../services/gridTools";
+import gridTools from "../services/grid.tools";
 import React, {forwardRef, Ref, useEffect, useImperativeHandle, useState} from "react";
 import {IDataSourceResult} from "../types/IDataSourceResult";
 import {Paginator} from "primereact/paginator";
@@ -54,7 +54,7 @@ const ItrGrid = ({
       } catch (e: any){
          console.log(e);
          return {
-            status: e.request.status,
+            status: 404,
             recordCount: 0,
             pageCount: 0,
             pageNo: 0,
@@ -223,7 +223,7 @@ const ItrGrid = ({
    const endContent = (
       <React.Fragment>
          {showClosed ? (
-            <div className="flex flex-column itr-switch">
+            <div className="flex flex-column itr-switch" style={{width: "14rem"}}>
                <label>Показать закрытые записи</label>
                <InputSwitch
                   checked={allRecords}
@@ -293,7 +293,7 @@ const ItrGrid = ({
       headerColumnGroup={headerColumnGroup}
    >
       <Column header="" body={editRecordTemplate} style={{ width: '1rem' }}/>
-      {columns.map((item: any) => item)}
+      {columns?.map((item: any) => item)}
       <Column header="" body={deleteRecordTemplate}  style={{ width: '1rem' }}/>
    </DataTable>;
 }
