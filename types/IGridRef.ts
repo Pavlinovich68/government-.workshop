@@ -1,3 +1,3 @@
 export interface IGridRef {
-    reload: () => void;
+   reload: () => void;
 }
