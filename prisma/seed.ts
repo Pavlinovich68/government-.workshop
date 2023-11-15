@@ -102,7 +102,7 @@ async function main() {
    if (division) {
       const hashPassword = await bcrypt.hashSync("Administrator1!", 8);
 
-      const row = await prisma.users.upsert({
+      await prisma.users.upsert({
          where: {email: 'administrator@localhost'},
          update: {
             name: 'Администратор системы',
@@ -117,6 +117,55 @@ async function main() {
                roles: appRoles
          }
       })
+
+      await prisma.users.upsert({
+         where: {email: 'base@localhost'},
+         update: {
+            name: 'Пользователь системы',
+            roles: {"base": "Пользователь системы"}
+         },
+         create: {
+               email: 'base@localhost',
+               name: 'Пользователь системы',
+               begin_date: new Date(),
+               password: hashPassword,
+               division_id: division.id,
+               roles: {"base": "Пользователь системы"}
+         }
+      })
+
+      await prisma.users.upsert({
+         where: {email: 'reserve-holl@localhost'},
+         update: {
+            name: 'Бронирование залов',
+            roles: {"reserve-holl": "Бронирование залов"}
+         },
+         create: {
+               email: 'reserve-holl@localhost',
+               name: 'Бронирование залов',
+               begin_date: new Date(),
+               password: hashPassword,
+               division_id: division.id,
+               roles: {"reserve-holl": "Бронирование залов"}
+         }
+      })
+
+      await prisma.users.upsert({
+         where: {email: 'reserve-conf@localhost'},
+         update: {
+            name: 'Бронирование конференций ВКС',
+            roles: {"reserve-conf": "Бронирование конференций ВКС"}
+         },
+         create: {
+               email: 'reserve-conf@localhost',
+               name: 'Бронирование конференций ВКС',
+               begin_date: new Date(),
+               password: hashPassword,
+               division_id: division.id,
+               roles: {"reserve-conf": "Бронирование конференций ВКС"}
+         }
+      })
+
    } else {
       throw new Error("Не удалось найти подразделение администраторов!");
    }

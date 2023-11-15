@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+'use client'
 
 import React, { useContext } from 'react';
 import AppMenuitem from './AppMenuitem';
@@ -8,8 +9,6 @@ import { MenuProvider } from './context/menucontext';
 
 const AppMenu = () => {
    const {data: session, status, update} = useSession();
-
-   console.log('Session object in AppMenu:', session)
 
    const { layoutConfig } = useContext(LayoutContext);
 
