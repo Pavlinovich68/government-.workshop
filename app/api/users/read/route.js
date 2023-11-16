@@ -1,3 +1,4 @@
+import PrismaFilter from "@/services/prisma.filter";
 import prisma from "../../../../prisma/client";
 import {NextResponse} from "next/server";
 
@@ -13,32 +14,7 @@ export const POST = async (request) => {
       let filter = {};
       if (searchStr) {
          filter = {
-            OR: [
-               {
-                  name:
-                  {
-                     contains: searchStr,
-                     mode: 'insensitive',
-                  },
-               },
-               {
-                  email:
-                  {
-                     contains: searchStr,
-                     mode: 'insensitive',
-                  },
-               },
-               {
-                  division:
-                  {
-                     name:
-                        {
-                           contains: searchStr,
-                           mode: 'insensitive',
-                        }
-                  },
-               },
-            ]
+            OR: PrismaFilter.OR(['name', 'email', 'division.name'], searchStr),
          }
       }
 
