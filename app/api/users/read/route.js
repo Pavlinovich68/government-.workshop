@@ -1,21 +1,32 @@
-import PrismaFilter from "@/services/prisma.filter";
+import prismaHelper from "@/services/prisma.helpers";
 import prisma from "../../../../prisma/client";
 import {NextResponse} from "next/server";
 
 export const POST = async (request) => {
-   const {pageSize, pageNo, orderBy, searchStr} = await request.json();
+   const {pageSize, pageNo, orderBy, searchStr, showClosed} = await request.json();
 
    console.log('pageSize:', pageSize);
    console.log('pageNo:', pageNo);
    console.log('orderBy:', orderBy);
    console.log('searchStr:', searchStr);
+   console.log('showClosed:', showClosed);
 
    try {
       let filter = {};
       if (searchStr) {
          filter = {
-            OR: PrismaFilter.OR(['name', 'email', 'division.name'], searchStr),
+            OR: prismaHelper.OR(['name', 'email', 'division.name'], searchStr)
+         };
+         if (showClosed) {
+            filter['AND']
+         } else {
+            filter = {
+               OR: prismaHelper.OR(['name', 'email', 'division.name'], searchStr),
+               AND: [{ OR: [{ end_date: null }, { end_date: { gt: new Date() } }]}]
+            }
          }
+      } else {
+         filter = showClosed ? {} : { OR: [{end_date: null}, {end_date: { gt: new Date() }}] }
       }
 
       const totalCount = await prisma.users.count({where: filter});

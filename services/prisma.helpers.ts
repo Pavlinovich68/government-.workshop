@@ -1,5 +1,5 @@
-export default class PrismaFilter {
-   static OR = (fields: string[], search: string) => {
+class PrismaHelper {
+   OR = (fields: string[], search: string) => {
       let result = [];
       for (const field of fields) {
          let elem:any = {};
@@ -28,4 +28,13 @@ export default class PrismaFilter {
       }
       return result;
    };
+
+   inClosed = (showClosed: boolean) => {
+      let result = showClosed
+         ? []
+         : [{ end_date: null }, { end_date: { gt: new Date() } }];
+      return result;
+   };
 }
+
+export default new PrismaHelper();
