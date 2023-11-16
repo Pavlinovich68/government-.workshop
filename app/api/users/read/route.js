@@ -17,8 +17,8 @@ export const POST = async (request) => {
          filter = {
             OR: prismaHelper.OR(['name', 'email', 'division.name'], searchStr)
          };
-         if (showClosed) {
-            filter[AND] = [{ OR: [{ end_date: null }, { end_date: { gt: new Date() } }]}];
+         if (!showClosed) {
+            filter['AND'] = [{ OR: [{ end_date: null }, { end_date: { gt: new Date() } }]}];
          }
       } else {
          filter = showClosed ? {} : { OR: [{end_date: null}, {end_date: { gt: new Date() }}] }
