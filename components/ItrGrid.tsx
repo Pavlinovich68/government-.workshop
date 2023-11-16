@@ -36,21 +36,32 @@ const ItrGrid = ({
 
 
    useEffect(() => {
-      fetchData(false, 10, 1, orderBy).then((data)=>{
-         if (data.status === 200){
+      fetchData(10, 1, orderBy, filter, false).then((data)=>{
+         if (data.status === 'success'){
             setPageNo(1);
-            setPageSize(data.pageSize);
-            setRecordCount(data.recordCount)
-            setRecords(data.result);
+            setPageSize(data.data.pageSize);
+            setRecordCount(data.data.recordCount)
+            setRecords(data.data.result);
          }
       });
       gridTools.cleanOrders(id);
    }, []);
-   const fetchData = async (all: boolean, size: number, no: number, order: any, filterValue: string = filter): Promise<IDataSourceResult> => {
+   const fetchData = async (pageSize: number, pageNo: number, orderBy: any, searchStr: string, showClosed: boolean): Promise<any> => {
       try {
-         const { data, status } = await read(all, size, no, order, filterValue);
-         data.status = status;
-         return data;
+         const res = await fetch(read, {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+               pageSize: pageSize,
+               pageNo: pageNo,
+               orderBy: orderBy,
+               searchStr: searchStr,
+               showClosed: showClosed
+            }),
+         });
+         return await res.json();
       } catch (e: any){
          console.log(e);
          return {
@@ -66,7 +77,7 @@ const ItrGrid = ({
 
    const onShowAll = (all: boolean) => {
       setAllRecords(all);
-      fetchData(all, pageSize, pageNo, orderBy).then((data)=>{
+      fetchData(pageSize, pageNo, orderBy, filter, all).then((data)=>{
          if (data.status === 200) {
             setRecordCount(data.recordCount)
             setRecords(data.result);
@@ -75,7 +86,7 @@ const ItrGrid = ({
    }
 
    const reload = () => {
-      fetchData(allRecords, pageSize, pageNo, orderBy).then((data)=>{
+      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 200) {
                setRecordCount(data.recordCount)
                setRecords(data.result);
@@ -136,7 +147,7 @@ const ItrGrid = ({
             _orderBy.push(JSON.parse(str));
       });
       setOrderBy(_orderBy);
-      fetchData(allRecords, pageSize, 1, _orderBy).then((data)=>{
+      fetchData(pageSize, 1, _orderBy, filter, allRecords).then((data)=>{
          if (data.status === 200){
             setPageNo(1);
             setPageSize(data.pageSize);
@@ -148,7 +159,7 @@ const ItrGrid = ({
    }
 
    const onRefreshCurrentPage = (event: any) => {
-      fetchData(allRecords, pageSize, pageNo, orderBy).then((data)=>{
+      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 200) {
             setRecordCount(data.recordCount)
             setRecords(data.result);
@@ -189,7 +200,7 @@ const ItrGrid = ({
    const onPageChange = (event: any) => {
       setPageNo(event.first);
       setPageSize(event.rows);
-      fetchData(allRecords, event.rows, event.page +1, orderBy).then((data)=>{
+      fetchData(event.rows, event.page +1, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 200) {
             setRecordCount(data.recordCount)
             setRecords(data.result);
@@ -211,7 +222,7 @@ const ItrGrid = ({
    const onGlobalFilterChange = (e: any) => {
       const value = e.target.value;
       setFilter(value);
-      fetchData(allRecords, pageSize, 1, orderBy, value).then((data)=>{
+      fetchData(pageSize, 1, orderBy, value, allRecords).then((data)=>{
          if (data.status === 200) {
             setPageNo(1);
             setPageSize(data.pageSize);
@@ -246,7 +257,7 @@ const ItrGrid = ({
 
    const deleteRecord = async (id: any) => {
       await drop(id);
-      fetchData(allRecords, pageSize, pageNo, orderBy).then((data)=>{
+      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 200) {
             setRecordCount(data.recordCount)
             setRecords(data.result);

@@ -82,9 +82,6 @@ const Users = () => {
    const deleteUser = () => {
 
    }
-
-   const read = () => {
-   }
 //#endregion
    return (
       <div className="grid">
@@ -93,7 +90,7 @@ const Users = () => {
                <h3>Пользователи системы</h3>
                <ItrGrid
                   id="userGrid"
-                  read={read}
+                  read={'/api/users/read'}
                   create={createUser}
                   update={updateUser}
                   drop={deleteUser}
