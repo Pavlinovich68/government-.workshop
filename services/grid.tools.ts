@@ -6,7 +6,7 @@ class GridTools{
       if (grid){
          let columns = grid.querySelectorAll('.p-sortable-column');
          columns.forEach((col) => {
-            let span = col.querySelector('span.p-sortable-column-icon');
+            let span = col.querySelector('span[data-pc-section="sort"]');
             if (span) {
                span.innerHTML = '';
                span.classList.remove('pi', 'pi-fw', 'pi-sort-alt');
@@ -23,7 +23,7 @@ class GridTools{
          columns.forEach((col, index)=>{
             let $field = columnFields[index];
             let $order = prevSort.find(itm => itm.field === $field);
-            let span = col.querySelector('span.p-sortable-column-icon');
+            let span = col.querySelector('span[data-pc-section="sort"]');
             if (span){
                span.classList.remove('pi', 'pi-fw', 'pi-sort-alt');
                if ($order) {

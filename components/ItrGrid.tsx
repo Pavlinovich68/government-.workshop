@@ -33,6 +33,7 @@ const ItrGrid = ({
    const [recordCount, setRecordCount] = useState(0);
    const [records, setRecords] = useState<any>([]);
    const [allRecords, setAllRecords] = useState<boolean>(false);
+   const [selectedRow, setSelectedRow] = useState(null);
 
 
    useEffect(() => {
@@ -159,6 +160,7 @@ const ItrGrid = ({
    }
 
    const onRefreshCurrentPage = (event: any) => {
+      debugger;
       fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 'success') {
             setRecordCount(data.data.recordCount)
@@ -189,16 +191,13 @@ const ItrGrid = ({
       CurrentPageReport: (options: any) => {
          return (
             <React.Fragment>
-               <span style={{ color: 'var(--text-color)', userSelect: 'none', width: '120px', textAlign: 'center' }}>
-                  {options.first} - {options.last} из {options.totalRecords}
-               </span>
-               <Button type="button" icon="pi pi-refresh" text onClick={onRefreshCurrentPage}/>
+               <Button type="button" icon="pi pi-refresh" text onClick={onRefreshCurrentPage} tooltip="Обновить"  tooltipOptions={{position: "bottom"}}/>
             </React.Fragment>
          );
       }
    };
    const onPageChange = (event: any) => {
-      setPageNo(event.first);
+      setPageNo(event.first+1);
       setPageSize(event.rows);
       fetchData(event.rows, event.page +1, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 'success') {
@@ -302,6 +301,7 @@ const ItrGrid = ({
       footer={paginator}
       header={header}
       headerColumnGroup={headerColumnGroup}
+      selectionMode="single" selection={selectedRow} onSelectionChange={(e) => setSelectedRow(e.value)}
    >
       <Column header="" body={editRecordTemplate} style={{ width: '1rem' }}/>
       {columns?.map((item: any) => item)}

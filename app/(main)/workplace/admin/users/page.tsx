@@ -9,7 +9,7 @@ import DateHelper from "@/services/date.helpers";
 import {User} from "@/models/User";
 
 const Users = () => {
-   const [columnFields] = useState(["last_name", "division.name", "email", "begin_date", "end_date"]);
+   const [columnFields] = useState(["name", "division.name", "email", "begin_date", "end_date"]);
    const grid = useRef<IGridRef>(null);
 //#region GRID
    const periodColumn = (

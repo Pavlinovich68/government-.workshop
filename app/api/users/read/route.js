@@ -14,14 +14,14 @@ export const POST = async (request) => {
    try {
       let filter = {};
       if (searchStr) {
-         filter = {
-            OR: prismaHelper.OR(['name', 'email', 'division.name'], searchStr)
-         };
+         filter['OR'] = prismaHelper.OR(['name', 'email', 'division.name'], searchStr);
          if (!showClosed) {
             filter['AND'] = [{ OR: [{ end_date: null }, { end_date: { gt: new Date() } }]}];
          }
       } else {
-         filter = showClosed ? {} : { OR: [{end_date: null}, {end_date: { gt: new Date() }}] }
+         if (!showClosed) {
+            filter['OR'] = [{end_date: null}, {end_date: { gt: new Date() }}];
+         }
       }
 
       const totalCount = await prisma.users.count({where: filter});
