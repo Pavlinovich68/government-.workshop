@@ -51,6 +51,7 @@ model users {
    id            Int         @id @default(autoincrement())
    email         String      @unique(map: "users_email_u_ind") @db.VarChar(50)
    name          String?     @db.VarChar(100)
+   contacts      String?     @db.VarChar(50)
    begin_date    DateTime    @db.Timestamp(6)
    end_date      DateTime?   @db.Timestamp(6)
    password      String?     @db.VarChar(255)

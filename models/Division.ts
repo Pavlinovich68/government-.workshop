@@ -4,4 +4,5 @@ export interface Division {
    short_name?: string;
    contacts?: string;
    parent_id?: number;
+   childrens?: Division[]
 }
