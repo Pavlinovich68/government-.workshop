@@ -78,17 +78,17 @@ const ItrGrid = ({
    const onShowAll = (all: boolean) => {
       setAllRecords(all);
       fetchData(pageSize, pageNo, orderBy, filter, all).then((data)=>{
-         if (data.status === 200) {
-            setRecordCount(data.recordCount)
-            setRecords(data.result);
+         if (data.status === 'success') {
+            setRecordCount(data.data.recordCount)
+            setRecords(data.data.result);
          }
       });
    }
 
    const reload = () => {
       fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 200) {
-               setRecordCount(data.recordCount)
+         if (data.status === 'success') {
+               setRecordCount(data.data.recordCount)
                setRecords(data.result);
          }
       });
@@ -148,11 +148,11 @@ const ItrGrid = ({
       });
       setOrderBy(_orderBy);
       fetchData(pageSize, 1, _orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 200){
+         if (data.status === 'success'){
             setPageNo(1);
-            setPageSize(data.pageSize);
-            setRecordCount(data.recordCount)
-            setRecords(data.result);
+            setPageSize(data.data.pageSize);
+            setRecordCount(data.data.recordCount)
+            setRecords(data.data.result);
          }
       });
       gridTools.sortOrders(id, columnFields, prevSort);
@@ -160,9 +160,9 @@ const ItrGrid = ({
 
    const onRefreshCurrentPage = (event: any) => {
       fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 200) {
-            setRecordCount(data.recordCount)
-            setRecords(data.result);
+         if (data.status === 'success') {
+            setRecordCount(data.data.recordCount)
+            setRecords(data.data.result);
          }
       });
    };
@@ -201,9 +201,9 @@ const ItrGrid = ({
       setPageNo(event.first);
       setPageSize(event.rows);
       fetchData(event.rows, event.page +1, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 200) {
-            setRecordCount(data.recordCount)
-            setRecords(data.result);
+         if (data.status === 'success') {
+            setRecordCount(data.data.recordCount)
+            setRecords(data.data.result);
          }
       });
    };
@@ -223,11 +223,11 @@ const ItrGrid = ({
       const value = e.target.value;
       setFilter(value);
       fetchData(pageSize, 1, orderBy, value, allRecords).then((data)=>{
-         if (data.status === 200) {
+         if (data.status === 'success') {
             setPageNo(1);
-            setPageSize(data.pageSize);
-            setRecordCount(data.recordCount);
-            setRecords(data.result);
+            setPageSize(data.data.pageSize);
+            setRecordCount(data.data.recordCount);
+            setRecords(data.data.result);
          }
       });
    };
@@ -258,9 +258,9 @@ const ItrGrid = ({
    const deleteRecord = async (id: any) => {
       await drop(id);
       fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 200) {
-            setRecordCount(data.recordCount)
-            setRecords(data.result);
+         if (data.status === 'success') {
+            setRecordCount(data.data.recordCount)
+            setRecords(data.data.result);
          }
       });
    }
