@@ -28,6 +28,16 @@ export const POST = async (request) => {
          include: {division: true}
       });
 
+      for (const user of result) {
+         user.roles = Object.entries(appRoles).map((role) => {
+            return {
+               role: role[0],
+               name: role[1],
+               active: user.roles[role[0]] !== undefined
+            }
+         });
+      }
+
       let json_response = {
          status: "success",
          data: {

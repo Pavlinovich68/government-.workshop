@@ -153,19 +153,22 @@ const Users = () => {
    const checkBox = (entry: any) => {
       return (
          <div className="flex justify-content-between mb-3">
-            <div>{entry[1]}</div>
-            <InputSwitch checked={currentUserRoles[entry[0]] !== undefined} onChange={(e) => switchChecked(e.value, entry)}/>
+            <div>{entry.name}</div>
+            <InputSwitch checked={entry.active} onChange={(e) => switchChecked(e.value, entry)}/>
          </div>
       )
    }
 
    const switchChecked = (checked: boolean | null | undefined, entry: any) => {
-      let _roles = currentUserRoles;
-      if (checked) {
-         _roles[entry[0]] = entry[1];
-      } else {
-         delete _roles[entry[0]];
-      }
+      debugger;
+      let _roles = currentUserRoles.map((item: any) => {
+         return item;
+      });
+      // if (checked) {
+      //    _roles[entry[0]] = entry[1];
+      // } else {
+      //    delete _roles[entry[0]];
+      // }
       setCurrentUserRoles(_roles);
    }
 
@@ -231,7 +234,7 @@ const Users = () => {
                      <TabPanel header="Роли">
                         {
                            //@ts-ignore
-                           Object.entries(appRoles).map((entry, index) => checkBox(entry))
+                           user.values?.roles?.map((entry) => checkBox(entry))
                         }
                      </TabPanel>
                   </TabView>
