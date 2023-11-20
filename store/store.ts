@@ -31,7 +31,6 @@ export default class Store {
 
    async login(email: string, password: string){
       try {
-         console.log('password');
          const user = await prisma.users.findFirst({
             where: {
                email: email

@@ -20,6 +20,7 @@ import {InputText} from 'primereact/inputtext';
 import {classNames} from "primereact/utils";
 import {Calendar} from "primereact/calendar";
 import {TreeSelect} from "primereact/treeselect";
+import {appRoles} from "@/prisma/roles/index";
 
 
 const Users = () => {
@@ -197,15 +198,19 @@ const Users = () => {
                            </div>
                            <div className="field col-12 md:col-6">
                               <label htmlFor="begin_date">Дата начала действия</label>
-                              <Calendar id="begin_date" className={classNames({"p-invalid": submitted && !user.values.begin_date})} value={user.values.begin_date} onChange={(e) => user.setFieldValue('begin_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar/>
+                              <Calendar id="begin_date" className={classNames({"p-invalid": submitted && !user.values.begin_date})} value={new Date(user.values.begin_date)} onChange={(e) => user.setFieldValue('begin_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar/>
                            </div>
                            <div className="field col-12 md:col-6">
                               <label htmlFor="end_date">Дата окончания действия</label>
-                              <Calendar id="end_date" value={user.values.end_date} onChange={(e) => user.setFieldValue('end_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar/>
+                              <Calendar id="end_date" value={user.values.end_date !== null ? new Date(user.values.end_date as Date) : null} onChange={(e) => user.setFieldValue('end_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar/>
                            </div>
                         </div>
                      </TabPanel>
                      <TabPanel header="Роли">
+                        {
+                           //@ts-ignore
+                           Object.entries(user.values.roles).map((item, index) => { return <div key={index}>{item[1]}</div> })
+                        }
                      </TabPanel>
                   </TabView>
                </div>

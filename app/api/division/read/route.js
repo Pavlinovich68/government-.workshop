@@ -27,8 +27,6 @@ const readNode = async (id) => {
       node.children = await readNode(node.data.id);
    }
 
-   console.log('Read divisions in route.js', result)
-
    return result;
 }
 

@@ -67,7 +67,6 @@ const divisions = {
 
 async function main() {
    const upsertDivision = async (model: any, parentId: number | null) => {
-      console.log(`Upsert division:`, model, '\n Parent division:', parentId);
       const result = await prisma.division.upsert({
          where: {name: model.name},
          update: {

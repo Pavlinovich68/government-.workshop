@@ -124,7 +124,6 @@ const Divisions = () => {
    }
 
    const deleteDivision = async (data: Division) => {
-      console.log('Division:', data);
       const res = await fetch("/api/division/delete", {
          method: "POST",
          headers: {

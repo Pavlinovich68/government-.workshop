@@ -50,7 +50,6 @@ export const authOptions = {
    callbacks: {
       async jwt({token, user, session, account}){
          if (user) {
-            console.log('Callback JWT user:', user);
             token.division_id = user.division_id;
             token.division_name = user.division?.name
             token.roles = user.roles;
@@ -59,7 +58,6 @@ export const authOptions = {
       },
       async session({session, user, token}){
          if (token) {
-            console.log('Callback Session token:', token);
             session.user.division_id = token.division_id;
             session.user.division_name = token.division_name;
             session.user.roles = token.roles;
