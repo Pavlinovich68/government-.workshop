@@ -1,6 +1,7 @@
 import prismaHelper from "@/services/prisma.helpers";
 import prisma from "../../../../prisma/client";
 import {NextResponse} from "next/server";
+import {appRoles} from "@/prisma/roles/index";
 
 export const POST = async (request) => {
    const {pageSize, pageNo, orderBy, searchStr, showClosed} = await request.json();
@@ -26,6 +27,7 @@ export const POST = async (request) => {
          orderBy: orderBy,
          include: {division: true}
       });
+
       let json_response = {
          status: "success",
          data: {
