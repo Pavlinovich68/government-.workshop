@@ -34,6 +34,7 @@ const Users = () => {
    const editor = useRef<ICardRef>(null);
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
    const [divisions, setDivisions] = useState<TreeNode[]>([]);
    // При закрытии карточки через отмену восстанавливаем роли отсюда
    const [savedUserRoles, setSavedUserRoles] = useState<any>({});
@@ -145,6 +146,15 @@ const Users = () => {
          if (!data.name){
             errors.name = "Наименование подразделения должно быть заполнено!";
          }
+         if (!data.email){
+            errors.email = "Адрес электронной почты должен быть заполнен!";
+         }
+         if (!data.contacts){
+            errors.contacts = "Контактная информация должна быть заполнена!";
+         }
+         if (!data.begin_date){
+            errors.begin_date = "Дата начала действия должна быть заполнена!";
+         }
          return errors;
       },
       onSubmit: () => {
@@ -175,6 +185,7 @@ const Users = () => {
       return (
          <form onSubmit={saveUser}>
                <div className="card p-fluid">
+                  <i className="pi pi-spin pi-spinner" style={{ fontSize: '10rem', color: '#326fd1', zIndex: "1000", position: "absolute", left: "calc(50% - 5rem)", top: "calc(50% - 5rem)", display: `${isLoading ? 'block' : 'none'}`}} hidden={!isLoading}></i>
                   <TabView>
                      <TabPanel header="Основные данные">
                         <div className="p-fluid formgrid grid">
@@ -218,7 +229,7 @@ const Users = () => {
                               <label htmlFor="contacts">Подразделение</label>
                               <TreeSelect
                                     id="division" className={classNames({"p-invalid": submitted && !user.values.division_id})}
-                                    required options={divisions} value={user.values.division_id?.toString()} onChange={(e) => user.setFieldValue('division_id', e.target.value)}  tooltip="Подразделение"/>
+                                    required options={divisions} value={user.values.division_id?.toString()} onChange={(e) => user.setFieldValue('division_id', e.target.value)}/>
                            </div>
                            <div className="field col-12 md:col-6">
                               <label htmlFor="begin_date">Дата начала действия</label>
@@ -316,6 +327,7 @@ const Users = () => {
          return;
       }
       try {
+         setIsLoading(true);
          if (recordState === RecordState.new) {
             const res = await fetch("/api/users/create", {
                method: "POST",
@@ -352,6 +364,8 @@ const Users = () => {
          // @ts-ignore
          toast.current.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
          throw e;
+      } finally {
+         setIsLoading(false);
       }
       if (editor.current) {
          editor.current.visible(false);
