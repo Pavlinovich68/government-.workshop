@@ -21,10 +21,12 @@ import {classNames} from "primereact/utils";
 import {Calendar} from "primereact/calendar";
 import {TreeSelect} from "primereact/treeselect";
 import {appRoles} from "@/prisma/roles/index";
+import { Checkbox } from "primereact/checkbox";
+import { InputSwitch } from "primereact/inputswitch";
 
 
 const Users = () => {
-   const emptyUser: User = {name: '', begin_date: new Date, roles: []};
+   const emptyUser: User = {name: '', begin_date: new Date, roles: null};
    const [columnFields] = useState(["name", "division.name", "email", "begin_date", "end_date"]);
    const grid = useRef<IGridRef>(null);
    const toast = useRef<Toast>(null);
@@ -33,6 +35,7 @@ const Users = () => {
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
    const [divisions, setDivisions] = useState<TreeNode[]>([]);
+   const [currentUserRoles, setCurrentUserRoles] = useState<any>({});
 
 
 //#region GRID
@@ -147,6 +150,28 @@ const Users = () => {
       }
    });
 
+   const checkBox = (entry: any) => {
+      return (
+         <div className="flex justify-content-between mb-3">
+            <div>{entry.name}</div>
+            <InputSwitch checked={entry.active} onChange={(e) => switchChecked(e.value, entry)}/>
+         </div>
+      )
+   }
+
+   const switchChecked = (checked: boolean | null | undefined, entry: any) => {
+      debugger;
+      let _roles = currentUserRoles.map((item: any) => {
+         return item;
+      });
+      // if (checked) {
+      //    _roles[entry[0]] = entry[1];
+      // } else {
+      //    delete _roles[entry[0]];
+      // }
+      setCurrentUserRoles(_roles);
+   }
+
    const card = () => {
       return (
          <form onSubmit={saveUser}>
@@ -209,7 +234,7 @@ const Users = () => {
                      <TabPanel header="Роли">
                         {
                            //@ts-ignore
-                           Object.entries(user.values.roles).map((item, index) => { return <div key={index}>{item[1]}</div> })
+                           user.values?.roles?.map((entry) => checkBox(entry))
                         }
                      </TabPanel>
                   </TabView>
@@ -227,6 +252,7 @@ const Users = () => {
       setCardHeader('Редактирование пользователя');
       getDivisionsTree();
       user.setValues(data);
+      setCurrentUserRoles(data.roles);
       setRecordState(RecordState.edit);
       setSubmitted(false);
       if (editor.current) {
