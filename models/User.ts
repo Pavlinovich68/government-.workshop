@@ -8,6 +8,6 @@ export interface User {
    name: string,
    contacts?: string,
    begin_date: Date,
-   end_date?: Date
+   end_date?: Date | undefined | null
    roles: any;
 }

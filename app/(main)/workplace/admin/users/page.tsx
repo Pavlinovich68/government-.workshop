@@ -26,7 +26,7 @@ import { InputSwitch } from "primereact/inputswitch";
 
 
 const Users = () => {
-   const emptyUser: User = {name: '', begin_date: new Date, roles: null};
+   const emptyUser: User = {name: '', begin_date: new Date, end_date: null, roles: []};
    const [columnFields] = useState(["name", "division.name", "email", "begin_date", "end_date"]);
    const grid = useRef<IGridRef>(null);
    const toast = useRef<Toast>(null);
@@ -252,6 +252,23 @@ const Users = () => {
       setSavedUserRoles(_roles);
    }
    const createUser = () => {
+      emptyUser.roles = Object.entries(appRoles).map((role) => {
+         return {
+            role: role[0],
+            name: role[1],
+            active: false
+         }
+      });
+      setCardHeader('Создание нового пользователя');
+      getDivisionsTree();
+      user.setValues(emptyUser);
+      setCurrentUserRoles(emptyUser.roles);
+      saveUserRoles(emptyUser.roles);
+      setRecordState(RecordState.new);
+      setSubmitted(false);
+      if (editor.current) {
+         editor.current.visible(true);
+      }
    }
 
    const updateUser = (data: User) => {
@@ -272,7 +289,67 @@ const Users = () => {
    }
 
    const saveUser = async () => {
+      setSubmitted(true);
+      if (!user.isValid) {
+         const errors = Object.values(user.errors);
+         //@ts-ignore
+         toast.current.show({
+            severity:'error',
+            summary: 'Ошибка сохранения',
+            content: (<div className="flex flex-column">
+                        <div className="text-center mb-2">
+                           <i className="pi pi-exclamation-triangle" style={{ fontSize: '3rem' }}></i>
+                           <h3 className="text-red-500">Ошибка сохранения</h3>
+                        </div>
+                  {errors.map((item, i) => {
+                     return (
+                        // eslint-disable-next-line react/jsx-key
+                        <p className="flex align-items-left m-0">
+                           {/* @ts-ignore */}
+                           {item}
+                        </p>)
+                  })
+               }
+            </div>),
+            life: 5000
+         });
+         return;
+      }
+      try {
+         if (recordState === RecordState.new) {
+            const res = await fetch("/api/users/create", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json",
+               },
+               body: JSON.stringify(user.values),
+            });
 
+            if (!res.ok){
+               debugger;
+               const data = await res.text;
+               throw new Error(res.statusText);
+            }
+         } else {
+            const res = await fetch("/api/users/update", {
+               method: "POST",
+               headers: {
+                  "Content-Type": "application/json",
+               },
+               body: JSON.stringify(user.values),
+            });
+         }
+         if (grid.current) {
+               grid.current.reload();
+         }
+      } catch (e: any) {
+         // @ts-ignore
+         toast.current.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
+         throw e;
+      }
+      if (editor.current) {
+         editor.current.visible(false);
+      }
    }
 
    const cancelUser = async () => {

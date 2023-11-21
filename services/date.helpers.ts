@@ -1,6 +1,6 @@
 export default class DateHelper {
-   static formatDate = (date?: Date) => {
-      if (!date) {
+   static formatDate = (date?: Date | null | undefined) => {
+      if (!date || date === undefined) {
          return '';
       }
       return new Date(date).toLocaleDateString('ru-RU', {

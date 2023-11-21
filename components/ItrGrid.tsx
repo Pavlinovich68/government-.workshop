@@ -90,7 +90,7 @@ const ItrGrid = ({
       fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 'success') {
                setRecordCount(data.data.recordCount)
-               setRecords(data.result);
+               setRecords(data.data.result);
          }
       });
    };
@@ -160,7 +160,6 @@ const ItrGrid = ({
    }
 
    const onRefreshCurrentPage = (event: any) => {
-      debugger;
       fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 'success') {
             setRecordCount(data.data.recordCount)
