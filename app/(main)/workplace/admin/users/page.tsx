@@ -35,6 +35,8 @@ const Users = () => {
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
    const [divisions, setDivisions] = useState<TreeNode[]>([]);
+   // При закрытии карточки через отмену восстанавливаем роли отсюда
+   const [savedUserRoles, setSavedUserRoles] = useState<any>({});
    const [currentUserRoles, setCurrentUserRoles] = useState<any>({});
 
 
@@ -242,6 +244,13 @@ const Users = () => {
 //#endregion
 
 //#region CRUD
+   const saveUserRoles = (currentRoles: any) => {
+      let _roles = [];
+      for(const role of currentRoles){
+         _roles.push({role: role.role, name: role.name, active: role.active});
+      }
+      setSavedUserRoles(_roles);
+   }
    const createUser = () => {
    }
 
@@ -250,6 +259,7 @@ const Users = () => {
       getDivisionsTree();
       user.setValues(data);
       setCurrentUserRoles(data.roles);
+      saveUserRoles(data.roles);
       setRecordState(RecordState.edit);
       setSubmitted(false);
       if (editor.current) {
@@ -263,6 +273,17 @@ const Users = () => {
 
    const saveUser = async () => {
 
+   }
+
+   const cancelUser = async () => {
+      for (const role of user.values.roles) {
+         //@ts-ignore
+         let _role = savedUserRoles.find(r => r.role === role.role);
+         if (_role) {
+            role.active = _role.active;
+         }
+      }
+      setCurrentUserRoles(savedUserRoles);
    }
 //#endregion
    return (
@@ -287,6 +308,7 @@ const Users = () => {
                   header={cardHeader}
                   dialogStyle={{ width: '35vw' }}
                   save={saveUser}
+                  cancel={cancelUser}
                   body={card()}
                   ref={editor}
                />

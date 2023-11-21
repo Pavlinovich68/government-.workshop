@@ -4,7 +4,7 @@ import {Button} from "primereact/button";
 import {ICardRef} from "../models/ICardRef";
 import { ConfirmPopup } from 'primereact/confirmpopup';
 
-const ItrCard = ({header, dialogStyle, body, save, hiddenSave = false} : any, ref: Ref<ICardRef>) => {
+const ItrCard = ({header, dialogStyle, body, save, cancel, hiddenSave = false} : any, ref: Ref<ICardRef>) => {
    const [editorVisible, setEditorVisible] = useState<boolean>(false);
    const saveButton = useRef(null);
    const [visibleConfirm, setVisibleConfirm] = useState(false);
@@ -18,7 +18,7 @@ const ItrCard = ({header, dialogStyle, body, save, hiddenSave = false} : any, re
 
    const dialogFooter = (
       <div className="itr-dialog-footer">
-         <Button label="Отмена" icon="pi pi-times" className="p-button-text" onClick={() => setEditorVisible(false)}/>
+         <Button label="Отмена" icon="pi pi-times" className="p-button-text" onClick={() => {setEditorVisible(false); if (cancel) { cancel(); }}}/>
          <Button ref={saveButton} label="Сохранить" icon="pi pi-check" autoFocus onClick={() => setVisibleConfirm(true)} type="submit" visible={!hiddenSave} />
          <ConfirmPopup
             visible={visibleConfirm}
