@@ -33,9 +33,9 @@ export const POST = async (request) => {
    } catch (error) {
       let error_response = {
          status: "error",
-         message: error.stack,
+         message: error,
       };
-      return new NextResponse(JSON.stringify(error_response), {
+      return NextResponse(JSON.stringify(error_response), {
          status: 500,
          headers: { "Content-Type": "application/json" },
       });
