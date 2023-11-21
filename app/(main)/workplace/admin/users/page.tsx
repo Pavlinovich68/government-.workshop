@@ -160,15 +160,12 @@ const Users = () => {
    }
 
    const switchChecked = (checked: boolean | null | undefined, entry: any) => {
-      debugger;
       let _roles = currentUserRoles.map((item: any) => {
+         if (item.role === entry.role) {
+            item.active = checked;
+         }
          return item;
       });
-      // if (checked) {
-      //    _roles[entry[0]] = entry[1];
-      // } else {
-      //    delete _roles[entry[0]];
-      // }
       setCurrentUserRoles(_roles);
    }
 
