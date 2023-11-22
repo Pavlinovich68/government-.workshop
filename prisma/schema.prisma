@@ -45,6 +45,7 @@ model division {
    parent     division?  @relation("divisionTodivision", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
    childrens  division[] @relation("divisionTodivision")
    users      users[]
+   halls      hall[]
 }
 
 model users {
@@ -72,4 +73,13 @@ model attachment {
    md5      String  @db.VarChar(16)
    body     Bytes   @db.ByteA
    users    users[]
+}
+
+model hall {
+   id         Int        @id @default(autoincrement())
+   name       String?    @unique(map: "hall_u_ind") @db.VarChar(200)
+   short_name String?    @unique(map: "hall_short_u_ind") @db.VarChar(50)
+   //Вместимость
+   capacity   Int        @db.Integer
+   divisions   division[]
 }
