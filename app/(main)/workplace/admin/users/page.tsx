@@ -296,8 +296,32 @@ const Users = () => {
       }
    }
 
-   const deleteUser = () => {
+   const deleteUser = async (id: number) => {
+      try {
+         circleProgress.show();
+         const res = await fetch("/api/users/delete", {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify({id: id}),
+         });
 
+         const returnedData = await res.json();
+
+         if (returnedData.status === 'error'){
+            throw new Error(returnedData.message);
+         }
+         if (grid.current) {
+               grid.current.reload();
+         }
+      } catch (e: any) {
+         // @ts-ignore
+         toast.current.show({severity:'error', summary: 'Ошибка удаления записи', detail: e.message, life: 3000});
+         throw e;
+      } finally {
+         circleProgress.hide();
+      }
    }
 
    const saveUser = async () => {

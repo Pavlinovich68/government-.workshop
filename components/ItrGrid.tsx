@@ -196,7 +196,7 @@ const ItrGrid = ({
       }
    };
    const onPageChange = (event: any) => {
-      setPageNo(event.first+1);
+      setPageNo(event.page+1);
       setPageSize(event.rows);
       fetchData(event.rows, event.page +1, orderBy, filter, allRecords).then((data)=>{
          if (data.status === 'success') {
