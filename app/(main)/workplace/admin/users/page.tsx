@@ -23,6 +23,7 @@ import {TreeSelect} from "primereact/treeselect";
 import {appRoles} from "@/prisma/roles/index";
 import { Checkbox } from "primereact/checkbox";
 import { InputSwitch } from "primereact/inputswitch";
+import circleProgress from '@/services/circle.progress.js'
 
 
 const Users = () => {
@@ -316,6 +317,7 @@ const Users = () => {
          return;
       }
       try {
+         circleProgress.show();
          if (recordState === RecordState.new) {
             const res = await fetch("/api/users/create", {
                method: "POST",
@@ -346,6 +348,8 @@ const Users = () => {
          // @ts-ignore
          toast.current.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
          throw e;
+      } finally {
+         circleProgress.hide();
       }
       if (editor.current) {
          editor.current.visible(false);

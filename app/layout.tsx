@@ -20,8 +20,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <body>
                <PrimeReactProvider>
                   <LayoutProvider>{children}</LayoutProvider>
-                </PrimeReactProvider>
+               </PrimeReactProvider>
             </body>
-        </html>
-    );
+      </html>
+   );
 }
