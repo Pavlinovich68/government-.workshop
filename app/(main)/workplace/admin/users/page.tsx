@@ -35,6 +35,7 @@ const Users = () => {
    const editor = useRef<ICardRef>(null);
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
    const [divisions, setDivisions] = useState<TreeNode[]>([]);
    // При закрытии карточки через отмену восстанавливаем роли отсюда
    const [savedUserRoles, setSavedUserRoles] = useState<any>({});
@@ -146,6 +147,15 @@ const Users = () => {
          if (!data.name){
             errors.name = "Наименование подразделения должно быть заполнено!";
          }
+         if (!data.email){
+            errors.email = "Адрес электронной почты должен быть заполнен!";
+         }
+         if (!data.contacts){
+            errors.contacts = "Контактная информация должна быть заполнена!";
+         }
+         if (!data.begin_date){
+            errors.begin_date = "Дата начала действия должна быть заполнена!";
+         }
          return errors;
       },
       onSubmit: () => {
@@ -155,9 +165,9 @@ const Users = () => {
 
    const checkBox = (entry: any) => {
       return (
-         <div className="flex justify-content-between mb-3">
-            <div>{entry.name}</div>
-            <InputSwitch checked={entry.active} onChange={(e) => switchChecked(e.value, entry)}/>
+         <div key={`role-outerDiv-${entry.role}`} className="flex justify-content-between mb-3">
+            <div key={`role-innerDiv-${entry.role}`}>{entry.name}</div>
+            <InputSwitch key={`role-${entry.role}`} checked={entry.active} onChange={(e) => switchChecked(e.value, entry)} tooltip="Выберите для доступности роли"/>
          </div>
       )
    }
@@ -176,6 +186,7 @@ const Users = () => {
       return (
          <form onSubmit={saveUser}>
                <div className="card p-fluid">
+                  <i className="pi pi-spin pi-spinner" style={{ fontSize: '10rem', color: '#326fd1', zIndex: "1000", position: "absolute", left: "calc(50% - 5rem)", top: "calc(50% - 5rem)", display: `${isLoading ? 'block' : 'none'}`}} hidden={!isLoading}></i>
                   <TabView>
                      <TabPanel header="Основные данные">
                         <div className="p-fluid formgrid grid">
@@ -188,7 +199,7 @@ const Users = () => {
                                  <InputText id="name"  placeholder="Фамилия, имя и отчество"
                                                    className={classNames({"p-invalid": submitted && !user.values.name})}
                                                    value={user.values.name}
-                                                   onChange={(e) => user.setFieldValue('name', e.target.value)} required autoFocus type="text"/>
+                                                   onChange={(e) => user.setFieldValue('name', e.target.value)} required autoFocus type="text" tooltip="Фамилия, имя и отчество"/>
                               </div>
                            </div>
                            <div className="field col-12">
@@ -200,7 +211,7 @@ const Users = () => {
                                  <InputText id="name"  placeholder="Адрес электронной почты"
                                                    className={classNames({"p-invalid": submitted && !user.values.email})}
                                                    value={user.values.email}
-                                                   onChange={(e) => user.setFieldValue('email', e.target.value)} required autoFocus type="email"/>
+                                                   onChange={(e) => user.setFieldValue('email', e.target.value)} required autoFocus type="email" tooltip="Адрес электронной почты"/>
                               </div>
                            </div>
                            <div className="field col-12">
@@ -212,22 +223,22 @@ const Users = () => {
                                  <InputText id="contacts"  placeholder="Контактная информация"
                                                    className={classNames({"p-invalid": submitted && !user.values.contacts})}
                                                    value={user.values.contacts}
-                                                   onChange={(e) => user.setFieldValue('contacts', e.target.value)} required autoFocus type="text"/>
+                                                   onChange={(e) => user.setFieldValue('contacts', e.target.value)} required autoFocus type="text" tooltip="Контактная информация"/>
                               </div>
                            </div>
                            <div className="field col-12">
                               <label htmlFor="contacts">Подразделение</label>
                               <TreeSelect
                                     id="division" className={classNames({"p-invalid": submitted && !user.values.division_id})}
-                                    required options={divisions} value={user.values.division_id?.toString()} onChange={(e) => user.setFieldValue('division_id', e.target.value)} />
+                                    required options={divisions} value={user.values.division_id?.toString()} onChange={(e) => user.setFieldValue('division_id', e.target.value)}/>
                            </div>
                            <div className="field col-12 md:col-6">
                               <label htmlFor="begin_date">Дата начала действия</label>
-                              <Calendar id="begin_date" className={classNames({"p-invalid": submitted && !user.values.begin_date})} value={new Date(user.values.begin_date)} onChange={(e) => user.setFieldValue('begin_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar/>
+                              <Calendar id="begin_date" className={classNames({"p-invalid": submitted && !user.values.begin_date})} value={new Date(user.values.begin_date)} onChange={(e) => user.setFieldValue('begin_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar tooltip="Дата начала действия"/>
                            </div>
                            <div className="field col-12 md:col-6">
                               <label htmlFor="end_date">Дата окончания действия</label>
-                              <Calendar id="end_date" value={user.values.end_date !== null ? new Date(user.values.end_date as Date) : null} onChange={(e) => user.setFieldValue('end_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar/>
+                              <Calendar id="end_date" value={user.values.end_date !== null ? new Date(user.values.end_date as Date) : null} onChange={(e) => user.setFieldValue('end_date', e.target.value)} dateFormat="dd MM yy" locale="ru" showIcon required  showButtonBar tooltip="Дата окончания действия"/>
                            </div>
                         </div>
                      </TabPanel>
@@ -327,10 +338,10 @@ const Users = () => {
                body: JSON.stringify(user.values),
             });
 
-            if (!res.ok){
-               debugger;
-               const data = await res.text;
-               throw new Error(res.statusText);
+            const returnedData = await res.json();
+
+            if (returnedData.status === 'error'){
+               throw new Error(returnedData.message);
             }
          } else {
             const res = await fetch("/api/users/update", {
@@ -340,6 +351,12 @@ const Users = () => {
                },
                body: JSON.stringify(user.values),
             });
+
+            const returnedData = await res.json();
+
+            if (returnedData.status === 'error'){
+               throw new Error(returnedData.message);
+            }
          }
          if (grid.current) {
                grid.current.reload();

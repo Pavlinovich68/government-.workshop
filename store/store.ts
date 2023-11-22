@@ -3,8 +3,6 @@ import { makeAutoObservable } from "mobx";
 import ApiError from "@/app/api/api-error";
 import {PrismaClient} from "@prisma/client";
 import CryptJS from "@/store/cryptjs";
-import {mockProviders} from "next-auth/client/__tests__/helpers/mocks";
-import credentials = mockProviders.credentials;
 import {signIn} from "next-auth/react";
 
 const prisma = new PrismaClient();

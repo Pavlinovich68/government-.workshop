@@ -63,8 +63,8 @@ export const POST = async (request) => {
    } catch (error) {
       let error_response = {
          status: "error",
-         message: error.stack,
+         message: error.message,
       };
-      return new NextResponse.json(error_response);
+      return NextResponse.json(error_response);
    }
 }
