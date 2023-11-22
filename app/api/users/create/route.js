@@ -27,7 +27,11 @@ export const POST = async (request) => {
    })
 
    if (_exists) {
-      throw new Error(`Пользователь с почтовым адресом ${user.email} уже существует!`);
+      let error_response = {
+         status: "error",
+         message: `Пользователь с почтовым адресом ${user.email} уже существует!`,
+      };
+      return NextResponse.json(error_response);
    }
 
    const password = generatePassword();
