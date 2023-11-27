@@ -54,12 +54,12 @@ const AppMenu = () => {
                visible: checkRoles(['admin']),
                label: 'Здания',
                icon: 'pi pi-fw pi-building',
-               to: '/pages/references/buildings'
+               to: '/workplace/references/buildings'
             },
             {
                label: 'Совещательные залы',
                icon: 'pi pi-fw pi-volume-up',
-               to: '/pages/references/halls'
+               to: '/workplace/references/halls'
             }
          ]
       },

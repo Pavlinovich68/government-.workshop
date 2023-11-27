@@ -1,7 +1,5 @@
 'use client'
 import React, {useEffect, useRef, useState} from "react";
-import {TreeTable} from 'primereact/treetable';
-import {Column} from 'primereact/column';
 import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
 import {ICardRef} from '../../../../../models/ICardRef'
@@ -11,30 +9,14 @@ import RecordState from "@/models/enums/record-state";
 import {Toast} from "primereact/toast";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import ItrCard from "@/components/ItrCard";
-import { Tooltip } from 'primereact/tooltip';
 import {classNames} from "primereact/utils";
 import { ConfirmPopup } from 'primereact/confirmpopup';
-import {TreeSelect} from "primereact/treeselect";
-import {TreeNode} from "primereact/treenode";
 import { InputNumber } from "primereact/inputnumber";
+import ItrGrid from "@/components/ItrGrid";
 
-
-async function getData() {
-   const res = await fetch('/api/hall/read', {
-      cache: "no-store"
-   });
-
-   if (!res.ok) {
-      throw new Error('Failed to fetch data for hall');
-   }
-
-   const result = await res.json();
-
-   return result.result;
-}
 
 const Hall = () => {
-   const emptyHall: Hall = {name: '', short_name: ''};
+   const emptyHall: Hall = {name: '', short_name: '', capacity: 0};
    const toast = useRef<Toast>(null);
    const [halls, setHalls] = useState([]);
    const [globalFilter, setGlobalFilter] = useState<string>('');
@@ -43,16 +25,7 @@ const Hall = () => {
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
    const [visibleConfirm, setVisibleConfirm] = useState(false);
-
-   useEffect(() => {
-      const reader = async () => {
-         const result = await getData();
-         return result;
-      }
-      reader().then((innerData) => {
-         setHalls(innerData)
-      });
-   }, []);
+   const dropButton = useRef(null);
 
 //#region Card
    const hall = useFormik<Hall>({
@@ -115,7 +88,7 @@ const Hall = () => {
       }
    }
 
-   const editHall = (data: Hall) => {
+   const updateHall = (data: Hall) => {
       setCardHeader('Редактирование зала');
       setRecordState(RecordState.edit);
       setSubmitted(false);
@@ -134,20 +107,12 @@ const Hall = () => {
             id: data.id
          }),
       });
-
-      const reader = async () => {
-         const result = await getData();
-         return result;
-      }
-      reader().then((innerData) => {
-         setHalls(innerData)
-      });
    }
 
    const saveHall = async () => {
       setSubmitted(true);
-      if (!division.isValid) {
-         const errors = Object.values(division.errors);
+      if (!hall.isValid) {
+         const errors = Object.values(hall.errors);
          toast.current?.show({
             severity: 'error',
             summary: 'Ошибка сохранения',
@@ -171,39 +136,31 @@ const Hall = () => {
       }
       try {
          if (recordState === RecordState.new) {
-            const res = await fetch("/api/division/create", {
+            const res = await fetch("/api/hall/create", {
                method: "POST",
                headers: {
                   "Content-Type": "application/json",
                },
                body: JSON.stringify({
-                  name: division.values.name,
-                  short_name: division.values.short_name,
-                  contacts: division.values.contacts,
-                  parent_id: division.values.parent_id
+                  name: hall.values.name,
+                  short_name: hall.values.short_name,
+                  capacity: hall.values.capacity
                }),
             });
          } else {
-            const res = await fetch("/api/division/update", {
+            const res = await fetch("/api/hall/update", {
                method: "POST",
                headers: {
                   "Content-Type": "application/json",
                },
                body: JSON.stringify({
-                  id: division.values.id,
-                  name: division.values.name,
-                  short_name: division.values.short_name,
-                  contacts: division.values.contacts
+                  id: hall.values.id,
+                  name: hall.values.name,
+                  short_name: hall.values.short_name,
+                  capacity: hall.values.capacity
                }),
             });
          }
-         const reader = async () => {
-            const result = await getData();
-            return result;
-         }
-         reader().then((innerData) => {
-            setDivisions(innerData)
-         });
          if (editor.current) {
             editor.current.visible(false);
          }
@@ -216,8 +173,8 @@ const Hall = () => {
    const actionTemplate = (item: any) => {
       return (
          <div className="flex flex-wrap gap-2">
-            <Button type="button" icon="pi pi-pencil" severity="info" rounded tooltip="Редактировать" tooltipOptions={{position: "bottom"}} onClick={() => editDivision(item?.data)}></Button>
-            <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision(item?.data)}></Button>
+            <Button type="button" icon="pi pi-pencil" severity="info" rounded tooltip="Редактировать" tooltipOptions={{position: "bottom"}} onClick={() => updateHall(item?.data)}></Button>
+            <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createHall(item?.data)}></Button>
             <Button ref={dropButton} type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => setVisibleConfirm(true)}></Button>
             <ConfirmPopup
                visible={visibleConfirm}
@@ -228,7 +185,7 @@ const Hall = () => {
                target={dropButton.current}
                acceptLabel="Да"
                rejectLabel="Нет"
-               accept={() => deleteDivision(item?.data)}/>
+               accept={() => deleteHall(item?.data)}/>
          </div>
       );
    };
@@ -238,7 +195,7 @@ const Hall = () => {
          <div className="grid">
             <div className="col-6">
                <div className="flex justify-content-start">
-                  <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision(null)}></Button>
+                  <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новый" tooltipOptions={{position: "bottom"}} onClick={() => createHall(null)}></Button>
                </div>
             </div>
             <div className="col-6">
@@ -259,17 +216,24 @@ const Hall = () => {
       <div className="grid">
          <div className="col-12">
             <div className="card">
-               <h3>Подразделения</h3>
-               <TreeTable value={divisions} tableStyle={{ minWidth: '50rem' }} globalFilter={globalFilter} resizableColumns showGridlines header={header} filterMode="strict">
-                  <Column field="name" header="Наименование структурного подразделения" expander style={{width: '60%'}}></Column>
-                  <Column field="short_name" header="Короткое наименование" style={{width: '15rem'}}></Column>
-                  <Column field="contacts" header="Контактная информация"></Column>
-                  <Column body={actionTemplate} style={{width: "165px"}} />
-               </TreeTable>
+               <h3>Совещательные залы</h3>
+               <ItrGrid
+                  id="userGrid"
+                  read={'/api/halls/read'}
+                  create={createHall}
+                  update={updateHall}
+                  drop={deleteHall}
+                  tableStyle={{minWidth: '50rem'}}
+                  showClosed={true}
+                  //columnFields={columnFields}
+                  //headerColumnGroup={periodColumn}
+                  //columns={gridColumns}
+                  //ref={grid}
+               />
                <ItrCard
                   header={cardHeader}
                   dialogStyle={{ width: '50vw' }}
-                  save={saveDivision}
+                  save={saveHall}
                   body={card()}
                   ref={editor}
                />
