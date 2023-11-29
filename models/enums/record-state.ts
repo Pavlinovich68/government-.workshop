@@ -1,7 +1,7 @@
 enum RecordState {
-    new,
-    edit,
-    ready
+   new,
+   edit,
+   ready
 }
 
 export default RecordState;

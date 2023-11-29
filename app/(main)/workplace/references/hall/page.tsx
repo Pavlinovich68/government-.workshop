@@ -15,9 +15,12 @@ import { InputNumber } from "primereact/inputnumber";
 import ItrGrid from "@/components/ItrGrid";
 import {Column} from "primereact/column";
 import {IGridRef} from "@/models/IGridRef";
+import CrudHelper from "@/services/crud.helper.js"
+import CRUD from "@/models/enums/crud-type";
 
 
 const Hall = () => {
+   const controllerName = 'hall';
    const emptyHall: Hall = {name: '', short_name: '', capacity: 0};
    const toast = useRef<Toast>(null);
    const [halls, setHalls] = useState([]);
@@ -131,15 +134,7 @@ const gridColumns = [
    }
 
    const deleteHall = async (data: Hall) => {
-      const res = await fetch("/api/hall/delete", {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-            id: data.id
-         }),
-      });
+      return await CrudHelper.crud(controllerName, CRUD.delete, { id: data.id });
    }
 
    const saveHall = async () => {
@@ -169,29 +164,17 @@ const gridColumns = [
       }
       try {
          if (recordState === RecordState.new) {
-            const res = await fetch("/api/hall/create", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-               },
-               body: JSON.stringify({
-                  name: hall.values.name,
-                  short_name: hall.values.short_name,
-                  capacity: hall.values.capacity
-               }),
+            const res = await CrudHelper.crud(controllerName, CRUD.create, {
+               name: hall.values.name,
+               short_name: hall.values.short_name,
+               capacity: hall.values.capacity
             });
          } else {
-            const res = await fetch("/api/hall/update", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-               },
-               body: JSON.stringify({
-                  id: hall.values.id,
-                  name: hall.values.name,
-                  short_name: hall.values.short_name,
-                  capacity: hall.values.capacity
-               }),
+            const res = await CrudHelper.crud(controllerName, CRUD.update, {
+               id: hall.values.id,
+               name: hall.values.name,
+               short_name: hall.values.short_name,
+               capacity: hall.values.capacity
             });
          }
          if (editor.current) {
