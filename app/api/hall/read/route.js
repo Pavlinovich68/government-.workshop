@@ -8,7 +8,7 @@ export const POST = async (request) => {
    try {
       let filter = {};
       if (searchStr) {
-         filter['OR'] = prismaHelper.OR(['name', 'short_name', 'division.name'], searchStr);
+         filter['OR'] = prismaHelper.OR(['name', 'short_name'], searchStr);
       }
 
       const totalCount = await prisma.hall.count({where: filter});

@@ -13,6 +13,8 @@ import {classNames} from "primereact/utils";
 import { ConfirmPopup } from 'primereact/confirmpopup';
 import { InputNumber } from "primereact/inputnumber";
 import ItrGrid from "@/components/ItrGrid";
+import {Column} from "primereact/column";
+import {IGridRef} from "@/models/IGridRef";
 
 
 const Hall = () => {
@@ -26,6 +28,34 @@ const Hall = () => {
    const [submitted, setSubmitted] = useState(false);
    const [visibleConfirm, setVisibleConfirm] = useState(false);
    const dropButton = useRef(null);
+   const [columnFields] = useState(["name", "short_name", "capacity"]);
+   const grid = useRef<IGridRef>(null);
+
+//#region Grid
+const gridColumns = [
+   <Column
+      key={0}
+      field="name"
+      sortable
+      header="Наименование"
+      style={{ width: '50%' }}>
+   </Column>,
+   <Column
+      key={1}
+      field="division.name"
+      sortable
+      header="Короткое наименование"
+      style={{ width: '35%' }}>
+   </Column>,
+   <Column
+      key={2}
+      field="email"
+      sortable
+      header="Вместимость"
+      style={{ width: '15%' }}>
+   </Column>
+];
+//#endregion
 
 //#region Card
    const hall = useFormik<Hall>({
@@ -37,6 +67,9 @@ const Hall = () => {
          }
          if (!data.short_name){
             errors.short_name = "Короткое наименование зала должно быть заполнено!";
+         }
+         if (!data.capacity){
+            errors.capacity = "Вместимость зала должна быть указана!";
          }
          return errors;
       },
@@ -219,16 +252,15 @@ const Hall = () => {
                <h3>Совещательные залы</h3>
                <ItrGrid
                   id="userGrid"
-                  read={'/api/halls/read'}
+                  read={'/api/hall/read'}
                   create={createHall}
                   update={updateHall}
                   drop={deleteHall}
                   tableStyle={{minWidth: '50rem'}}
                   showClosed={true}
-                  //columnFields={columnFields}
-                  //headerColumnGroup={periodColumn}
-                  //columns={gridColumns}
-                  //ref={grid}
+                  columnFields={columnFields}
+                  columns={gridColumns}
+                  ref={grid}
                />
                <ItrCard
                   header={cardHeader}
