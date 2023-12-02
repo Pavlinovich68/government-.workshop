@@ -65,18 +65,24 @@ export const POST = async (request) => {
       return result;
    }
 
-   const {operation, model} = await request.json();
+   const { model } = await request.json();
    try {
-      switch (operation) {
+      let result = null;
+      switch (model.operation) {
          case CRUD.read:
-            return await NextResponse.json({status: 'success', data: read(model)});
+            result = read(model.model);
+            break;
          case CRUD.create:
-            return await NextResponse.json({status: 'success', result: create(model)});
+            result = create(model.model);
+            break;
          case CRUD.update:
-            return await NextResponse.json({status: 'success', result: update(model)});
+            result = update(model.model);
+            break;
          case CRUD.delete:
-            return await NextResponse.json({status: 'success', result: drop(model)});
+            result = drop(model.model);
+            break;
       }
+      return await NextResponse.json({status: 'success', data: result});
    } catch (error) {
       let error_response = {
          status: "error",

@@ -59,7 +59,7 @@ const AppMenu = () => {
             {
                label: 'Совещательные залы',
                icon: 'pi pi-fw pi-volume-up',
-               to: '/workplace/references/halls'
+               to: '/workplace/references/hall'
             }
          ]
       },
