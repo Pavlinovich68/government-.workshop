@@ -1,7 +1,6 @@
 import {DataTable, DataTableSortMeta, DataTableStateEvent} from "primereact/datatable";
 import gridTools from "../services/grid.tools";
-import React, {forwardRef, Ref, useEffect, useImperativeHandle, useState} from "react";
-import {IDataSourceResult} from "../types/IDataSourceResult";
+import React, {forwardRef, Ref, useEffect, useImperativeHandle, useState, useRef} from "react";
 import {Paginator} from "primereact/paginator";
 import {Dropdown} from "primereact/dropdown";
 import {Button} from "primereact/button";
@@ -11,11 +10,16 @@ import {Column} from "primereact/column";
 import {confirmDialog} from "primereact/confirmdialog";
 import { IGridRef } from "../types/IGridRef";
 import {InputSwitch} from "primereact/inputswitch";
+import CrudHelper from "@/services/crud.helper";
+import CRUD from "@/models/enums/crud-type";
+import {Toast} from "primereact/toast";
+import { IDataSourceResult } from "@/types/IDataSourceResult";
 
 const ItrGrid = ({
    id,
    create,
    read,
+   controller,
    update,
    drop,
    columnFields,
@@ -25,6 +29,8 @@ const ItrGrid = ({
    headerColumnGroup} : any,
    ref: Ref<IGridRef>) => {
 
+   const toast = useRef<Toast>(null);
+   const [first, setFirst] = useState(0);
    const [orderBy, setOrderBy] = useState({});
    const [sort, setSort] = useState<DataTableSortMeta[]>([]);
    const [filter, setFilter] = useState('');
@@ -34,63 +40,49 @@ const ItrGrid = ({
    const [records, setRecords] = useState<any>([]);
    const [allRecords, setAllRecords] = useState<boolean>(false);
    const [selectedRow, setSelectedRow] = useState(null);
+   const [controllerName, setControllerName] = useState(controller);
 
 
    useEffect(() => {
-      fetchData(10, 1, orderBy, filter, false).then((data)=>{
-         if (data.status === 'success'){
-            setPageNo(1);
-            setPageSize(data.data.pageSize);
-            setRecordCount(data.data.recordCount)
-            setRecords(data.data.result);
-         }
+      fetchData(10, 1, orderBy, filter, false).then((data: any) => {
+         setPageNo(1);
+         setPageSize(data.pageSize);
+         setRecordCount(data.recordCount)
+         setRecords(data.result);
+         gridTools.cleanOrders(id);
       });
-      gridTools.cleanOrders(id);
    }, []);
-   const fetchData = async (pageSize: number, pageNo: number, orderBy: any, searchStr: string, showClosed: boolean): Promise<any> => {
-      try {
-         const res = await fetch(read, {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-               pageSize: pageSize,
-               pageNo: pageNo,
-               orderBy: orderBy,
-               searchStr: searchStr,
-               showClosed: showClosed
-            }),
-         });
-         return await res.json();
-      } catch (e: any){
-         console.log(e);
-         return {
-            status: 404,
-            recordCount: 0,
-            pageCount: 0,
-            pageNo: 0,
-            pageSize: 0,
-            result: []
-         }
+
+   const fetchData = async (pageSize: number, pageNo: number, orderBy: any, searchStr: string, showClosed: boolean) => {
+      const res = await CrudHelper.crud(controllerName, CRUD.read, {
+         pageSize: pageSize,
+         pageNo: pageNo,
+         orderBy: orderBy,
+         searchStr: searchStr,
+         showClosed: showClosed
+      });
+      if (res.status === 'success') {
+         return res.data as IDataSourceResult;
+      } else {
+         toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
       }
    }
 
    const onShowAll = (all: boolean) => {
       setAllRecords(all);
-      fetchData(pageSize, pageNo, orderBy, filter, all).then((data)=>{
-         if (data.status === 'success') {
-            setRecordCount(data.data.recordCount)
-            setRecords(data.data.result);
+      fetchData(pageSize, pageNo, orderBy, filter, all).then((data: IDataSourceResult | undefined)=>{
+         if (data){
+            setRecordCount(data.recordCount)
+            setRecords(data.result);
          }
       });
    }
 
    const reload = () => {
-      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 'success') {
-               setRecordCount(data.data.recordCount)
-               setRecords(data.data.result);
+      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data: IDataSourceResult | undefined)=>{
+         if (data) {
+               setRecordCount(data.recordCount)
+               setRecords(data.result);
          }
       });
    };
@@ -148,22 +140,22 @@ const ItrGrid = ({
             _orderBy.push(JSON.parse(str));
       });
       setOrderBy(_orderBy);
-      fetchData(pageSize, 1, _orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 'success'){
+      fetchData(pageSize, 1, _orderBy, filter, allRecords).then((data: IDataSourceResult | undefined)=>{
+         if (data){
             setPageNo(1);
-            setPageSize(data.data.pageSize);
-            setRecordCount(data.data.recordCount)
-            setRecords(data.data.result);
+            setPageSize(data.pageSize);
+            setRecordCount(data.recordCount)
+            setRecords(data.result);
          }
       });
       gridTools.sortOrders(id, columnFields, prevSort);
    }
 
    const onRefreshCurrentPage = (event: any) => {
-      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 'success') {
-            setRecordCount(data.data.recordCount)
-            setRecords(data.data.result);
+      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data: IDataSourceResult | undefined)=>{
+         if (data) {
+            setRecordCount(data.recordCount)
+            setRecords(data.result);
          }
       });
    };
@@ -198,15 +190,16 @@ const ItrGrid = ({
    const onPageChange = (event: any) => {
       setPageNo(event.page+1);
       setPageSize(event.rows);
-      fetchData(event.rows, event.page +1, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 'success') {
-            setRecordCount(data.data.recordCount)
-            setRecords(data.data.result);
+      fetchData(event.rows, event.page +1, orderBy, filter, allRecords).then((data: IDataSourceResult | undefined)=>{
+         if (data) {
+            setFirst(event.page * pageSize +1);
+            setRecordCount(data.recordCount)
+            setRecords(data.result);
          }
       });
    };
 
-   const paginator =  <Paginator template={paginatorTemplate} first={pageNo} rows={pageSize} totalRecords={recordCount} onPageChange={onPageChange} className="justify-content-end" />;
+   const paginator =  <Paginator template={paginatorTemplate} first={first} rows={pageSize} totalRecords={recordCount} onPageChange={onPageChange} className="justify-content-end" />;
 
    const startContent = (
       <React.Fragment>
@@ -220,12 +213,12 @@ const ItrGrid = ({
    const onGlobalFilterChange = (e: any) => {
       const value = e.target.value;
       setFilter(value);
-      fetchData(pageSize, 1, orderBy, value, allRecords).then((data)=>{
-         if (data.status === 'success') {
+      fetchData(pageSize, 1, orderBy, value, allRecords).then((data: IDataSourceResult | undefined)=>{
+         if (data) {
             setPageNo(1);
-            setPageSize(data.data.pageSize);
-            setRecordCount(data.data.recordCount);
-            setRecords(data.data.result);
+            setPageSize(data.pageSize);
+            setRecordCount(data.recordCount);
+            setRecords(data.result);
          }
       });
    };
@@ -255,10 +248,10 @@ const ItrGrid = ({
 
    const deleteRecord = async (id: any) => {
       await drop(id);
-      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data)=>{
-         if (data.status === 'success') {
-            setRecordCount(data.data.recordCount)
-            setRecords(data.data.result);
+      fetchData(pageSize, pageNo, orderBy, filter, allRecords).then((data: IDataSourceResult | undefined)=>{
+         if (data) {
+            setRecordCount(data.recordCount)
+            setRecords(data.result);
          }
       });
    }

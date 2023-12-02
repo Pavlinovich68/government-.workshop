@@ -16,8 +16,7 @@ export const POST = async (request) => {
          skip: pageSize * (pageNo -1),
          take: pageSize,
          where: filter,
-         orderBy: orderBy,
-         include: {division: true}
+         orderBy: orderBy
       });
 
       let json_response = {

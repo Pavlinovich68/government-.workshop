@@ -27,8 +27,7 @@ export const POST = async (request) => {
          skip: model.pageSize * (model.pageNo -1),
          take: model.pageSize,
          where: filter,
-         orderBy: model.orderBy,
-         include: {division: true}
+         orderBy: model.orderBy
       });
 
       let data = {
@@ -65,32 +64,25 @@ export const POST = async (request) => {
       return result;
    }
 
-   const { model } = await request.json();
+   const { operation, model } = await request.json();
    try {
       let result = null;
-      switch (model.operation) {
+      switch (operation) {
          case CRUD.read:
-            result = read(model.model);
+            result = await read(model);
             break;
          case CRUD.create:
-            result = create(model.model);
+            result = await create(model);
             break;
          case CRUD.update:
-            result = update(model.model);
+            result = await update(model);
             break;
          case CRUD.delete:
-            result = drop(model.model);
+            result = await drop(model);
             break;
       }
       return await NextResponse.json({status: 'success', data: result});
    } catch (error) {
-      let error_response = {
-         status: "error",
-         message: error.stack,
-      };
-      return NextResponse(JSON.stringify(error_response), {
-         status: 500,
-         headers: { "Content-Type": "application/json" },
-      });
+      return await NextResponse.json({status: 'error', data: error.stack });
    }
 }

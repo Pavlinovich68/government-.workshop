@@ -34,7 +34,6 @@ class MailService {
    }
 
    async restoreLink(to, link, date){
-      console.log(link);
       await this.transporter.sendMail({
          from: process.env.SMTP_USER,
          to: to,

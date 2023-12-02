@@ -21,7 +21,7 @@ import CRUD from "@/models/enums/crud-type";
 
 const Hall = () => {
    const controllerName = 'hall';
-   const emptyHall: Hall = {name: '', short_name: '', capacity: 0};
+   const emptyHall: Hall = {name: '', short_name: '', capacity: 10};
    const toast = useRef<Toast>(null);
    const [halls, setHalls] = useState([]);
    const [globalFilter, setGlobalFilter] = useState<string>('');
@@ -114,9 +114,10 @@ const gridColumns = [
    }
    //#endregion
 
-   //#region CRUD
-   const createHall = (data: Hall | null) => {
+//#region CRUD
+   const createHall = () => {
       setCardHeader('Создание нового зала');
+      hall.setValues(emptyHall);
       setRecordState(RecordState.new);
       setSubmitted(false);
       if (editor.current) {
@@ -126,6 +127,7 @@ const gridColumns = [
 
    const updateHall = (data: Hall) => {
       setCardHeader('Редактирование зала');
+      hall.setValues(data);
       setRecordState(RecordState.edit);
       setSubmitted(false);
       if (editor.current) {
@@ -134,7 +136,7 @@ const gridColumns = [
    }
 
    const deleteHall = async (data: Hall) => {
-      return await CrudHelper.crud(controllerName, CRUD.delete, { id: data.id });
+      return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
    const saveHall = async () => {
@@ -163,55 +165,41 @@ const gridColumns = [
          return;
       }
       try {
-         if (recordState === RecordState.new) {
-            const res = await CrudHelper.crud(controllerName, CRUD.create, {
+         const res = recordState === RecordState.new ?
+            await CrudHelper.crud(controllerName, CRUD.create, {
                name: hall.values.name,
                short_name: hall.values.short_name,
                capacity: hall.values.capacity
-            });
-         } else {
-            const res = await CrudHelper.crud(controllerName, CRUD.update, {
+            }) :
+            await CrudHelper.crud(controllerName, CRUD.update, {
                id: hall.values.id,
                name: hall.values.name,
                short_name: hall.values.short_name,
                capacity: hall.values.capacity
             });
-         }
-         if (editor.current) {
-            editor.current.visible(false);
+
+         if (res.status === 'error'){
+            toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
+         } else {
+            if (editor.current) {
+               editor.current.visible(false);
+            }
+            if (grid.current) {
+               grid.current.reload();
+            }
          }
       } catch (e: any) {
          toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
       }
    }
-   //#endregion
-
-   const actionTemplate = (item: any) => {
-      return (
-         <div className="flex flex-wrap gap-2">
-            <Button type="button" icon="pi pi-pencil" severity="info" rounded tooltip="Редактировать" tooltipOptions={{position: "bottom"}} onClick={() => updateHall(item?.data)}></Button>
-            <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createHall(item?.data)}></Button>
-            <Button ref={dropButton} type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => setVisibleConfirm(true)}></Button>
-            <ConfirmPopup
-               visible={visibleConfirm}
-               onHide={() => setVisibleConfirm(false)}
-               message="Вы действительно хотите удалить текущую запись?"
-               icon="pi pi-exclamation-triangle"
-               //@ts-ignore
-               target={dropButton.current}
-               acceptLabel="Да"
-               rejectLabel="Нет"
-               accept={() => deleteHall(item?.data)}/>
-         </div>
-      );
-   };
+//#endregion
 
    const getHeader = () => {
       return (
          <div className="grid">
             <div className="col-6">
                <div className="flex justify-content-start">
-                  <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новый" tooltipOptions={{position: "bottom"}} onClick={() => createHall(null)}></Button>
+                  <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новый" tooltipOptions={{position: "bottom"}} onClick={() => createHall()}></Button>
                </div>
             </div>
             <div className="col-6">
@@ -236,6 +224,7 @@ const gridColumns = [
                <ItrGrid
                   id="userGrid"
                   read={'/api/hall/read'}
+                  controller={controllerName}
                   create={createHall}
                   update={updateHall}
                   drop={deleteHall}
