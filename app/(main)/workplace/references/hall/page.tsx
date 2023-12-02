@@ -1,16 +1,15 @@
 'use client'
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {Button} from 'primereact/button';
 import {InputText} from 'primereact/inputtext';
-import {ICardRef} from '../../../../../models/ICardRef'
+import {ICardRef} from '@/models/ICardRef'
 import {FormikErrors, useFormik} from "formik";
-import {Hall} from "../../../../../models/Hall";
+import {Hall} from "@/models/Hall";
 import RecordState from "@/models/enums/record-state";
 import {Toast} from "primereact/toast";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import ItrCard from "@/components/ItrCard";
 import {classNames} from "primereact/utils";
-import { ConfirmPopup } from 'primereact/confirmpopup';
 import { InputNumber } from "primereact/inputnumber";
 import ItrGrid from "@/components/ItrGrid";
 import {Column} from "primereact/column";
@@ -22,17 +21,15 @@ import CRUD from "@/models/enums/crud-type";
 const Hall = () => {
    const controllerName = 'hall';
    const emptyHall: Hall = {name: '', short_name: '', capacity: 10};
+   const [columnFields] = useState(["name", "short_name", "capacity"]);
+   const grid = useRef<IGridRef>(null);
    const toast = useRef<Toast>(null);
-   const [halls, setHalls] = useState([]);
-   const [globalFilter, setGlobalFilter] = useState<string>('');
    const editor = useRef<ICardRef>(null);
    const [cardHeader, setCardHeader] = useState('');
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
-   const [visibleConfirm, setVisibleConfirm] = useState(false);
-   const dropButton = useRef(null);
-   const [columnFields] = useState(["name", "short_name", "capacity"]);
-   const grid = useRef<IGridRef>(null);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
+   const [globalFilter, setGlobalFilter] = useState<string>('');
 
 //#region Grid
 const gridColumns = [
@@ -45,14 +42,14 @@ const gridColumns = [
    </Column>,
    <Column
       key={1}
-      field="division.name"
+      field="short_name"
       sortable
       header="Короткое наименование"
       style={{ width: '35%' }}>
    </Column>,
    <Column
       key={2}
-      field="email"
+      field="capacity"
       sortable
       header="Вместимость"
       style={{ width: '15%' }}>
@@ -85,6 +82,7 @@ const gridColumns = [
       return (
          <form onSubmit={saveHall}>
             <div className="card p-fluid">
+               <i className="pi pi-spin pi-spinner" style={{ fontSize: '10rem', color: '#326fd1', zIndex: "1000", position: "absolute", left: "calc(50% - 5rem)", top: "calc(50% - 5rem)", display: `${isLoading ? 'block' : 'none'}`}} hidden={!isLoading}></i>
                <div className="p-fluid formgrid grid">
                   <div className="field col-12">
                      <label htmlFor="name">Наименование зала</label>
@@ -135,7 +133,7 @@ const gridColumns = [
       }
    }
 
-   const deleteHall = async (data: Hall) => {
+   const deleteHall = async (data: any) => {
       return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
@@ -165,6 +163,7 @@ const gridColumns = [
          return;
       }
       try {
+         setIsLoading(true);
          const res = recordState === RecordState.new ?
             await CrudHelper.crud(controllerName, CRUD.create, {
                name: hall.values.name,
@@ -180,6 +179,7 @@ const gridColumns = [
 
          if (res.status === 'error'){
             toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
+            setIsLoading(false);
          } else {
             if (editor.current) {
                editor.current.visible(false);
@@ -187,9 +187,11 @@ const gridColumns = [
             if (grid.current) {
                grid.current.reload();
             }
+            setIsLoading(false);
          }
       } catch (e: any) {
          toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
+         setIsLoading(false);
       }
    }
 //#endregion
@@ -222,14 +224,12 @@ const gridColumns = [
             <div className="card">
                <h3>Совещательные залы</h3>
                <ItrGrid
-                  id="userGrid"
-                  read={'/api/hall/read'}
                   controller={controllerName}
                   create={createHall}
                   update={updateHall}
                   drop={deleteHall}
                   tableStyle={{minWidth: '50rem'}}
-                  showClosed={true}
+                  showClosed={false}
                   columnFields={columnFields}
                   columns={gridColumns}
                   ref={grid}

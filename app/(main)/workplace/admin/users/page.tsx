@@ -1,14 +1,13 @@
 'use client'
 import {TreeNode} from "primereact/treenode";
 import ItrGrid from "@/components/ItrGrid";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useRef, useState} from "react";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
 import {Column} from "primereact/column";
 import {IGridRef} from "@/models/IGridRef";
 import DateHelper from "@/services/date.helpers";
 import {User} from "@/models/User";
-import {Division} from "@/models/Division";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import ItrCard from "@/components/ItrCard";
 import {Toast} from "primereact/toast";
@@ -20,19 +19,21 @@ import {InputText} from 'primereact/inputtext';
 import {classNames} from "primereact/utils";
 import {Calendar} from "primereact/calendar";
 import {TreeSelect} from "primereact/treeselect";
-import {appRoles} from "@/prisma/roles/index";
-import { Checkbox } from "primereact/checkbox";
+import {appRoles} from "@/prisma/roles/index";;
 import { InputSwitch } from "primereact/inputswitch";
 import circleProgress from '@/services/circle.progress.js'
+import CrudHelper from "@/services/crud.helper.js"
+import CRUD from "@/models/enums/crud-type";
 
 
 const Users = () => {
+   const controllerName = 'users';
    const emptyUser: User = {name: '', begin_date: new Date, end_date: null, roles: []};
    const [columnFields] = useState(["name", "division.name", "email", "begin_date", "end_date"]);
    const grid = useRef<IGridRef>(null);
    const toast = useRef<Toast>(null);
-   const [cardHeader, setCardHeader] = useState('');
    const editor = useRef<ICardRef>(null);
+   const [cardHeader, setCardHeader] = useState('');
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
    const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -296,32 +297,8 @@ const Users = () => {
       }
    }
 
-   const deleteUser = async (id: number) => {
-      try {
-         circleProgress.show();
-         const res = await fetch("/api/users/delete", {
-            method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-            },
-            body: JSON.stringify({id: id}),
-         });
-
-         const returnedData = await res.json();
-
-         if (returnedData.status === 'error'){
-            throw new Error(returnedData.message);
-         }
-         if (grid.current) {
-               grid.current.reload();
-         }
-      } catch (e: any) {
-         // @ts-ignore
-         toast.current.show({severity:'error', summary: 'Ошибка удаления записи', detail: e.message, life: 3000});
-         throw e;
-      } finally {
-         circleProgress.hide();
-      }
+   const deleteUser = async (data: any) => {
+      return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
    const saveUser = async () => {
@@ -352,48 +329,27 @@ const Users = () => {
          return;
       }
       try {
-         circleProgress.show();
-         if (recordState === RecordState.new) {
-            const res = await fetch("/api/users/create", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-               },
-               body: JSON.stringify(user.values),
-            });
+         setIsLoading(true);
 
-            const returnedData = await res.json();
+         const res = recordState === RecordState.new ?
+            await CrudHelper.crud(controllerName, CRUD.create, user.values) :
+            await CrudHelper.crud(controllerName, CRUD.update, user.values);
 
-            if (returnedData.status === 'error'){
-               throw new Error(returnedData.message);
-            }
+         setIsLoading(false);
+
+         if (res.status === 'error'){
+            toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
          } else {
-            const res = await fetch("/api/users/update", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-               },
-               body: JSON.stringify(user.values),
-            });
-
-            const returnedData = await res.json();
-
-            if (returnedData.status === 'error'){
-               throw new Error(returnedData.message);
+            if (editor.current) {
+               editor.current.visible(false);
             }
-         }
-         if (grid.current) {
+            if (grid.current) {
                grid.current.reload();
+            }
          }
       } catch (e: any) {
-         // @ts-ignore
-         toast.current.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
-         throw e;
-      } finally {
-         circleProgress.hide();
-      }
-      if (editor.current) {
-         editor.current.visible(false);
+         toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
+         setIsLoading(false);
       }
    }
 
@@ -414,8 +370,7 @@ const Users = () => {
             <div className="card">
                <h3>Пользователи системы</h3>
                <ItrGrid
-                  id="userGrid"
-                  read={'/api/users/read'}
+                  controller={controllerName}
                   create={createUser}
                   update={updateUser}
                   drop={deleteUser}

@@ -16,15 +16,13 @@ import {Toast} from "primereact/toast";
 import { IDataSourceResult } from "@/types/IDataSourceResult";
 
 const ItrGrid = ({
-   id,
-   create,
-   read,
    controller,
+   create,
    update,
    drop,
+   columns,
    columnFields,
    tableStyle,
-   columns,
    showClosed,
    headerColumnGroup} : any,
    ref: Ref<IGridRef>) => {
@@ -49,7 +47,7 @@ const ItrGrid = ({
          setPageSize(data.pageSize);
          setRecordCount(data.recordCount)
          setRecords(data.result);
-         gridTools.cleanOrders(id);
+         gridTools.cleanOrders(`${controller}Grid`);
       });
    }, []);
 
@@ -148,7 +146,7 @@ const ItrGrid = ({
             setRecords(data.result);
          }
       });
-      gridTools.sortOrders(id, columnFields, prevSort);
+      gridTools.sortOrders(`${controller}Grid`, columnFields, prevSort);
    }
 
    const onRefreshCurrentPage = (event: any) => {
@@ -282,7 +280,7 @@ const ItrGrid = ({
    }
 
    return <DataTable
-      id={id}
+      id={`${controller}Grid`}
       onSort={onSort}
       value={records}
       removableSort

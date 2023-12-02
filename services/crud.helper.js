@@ -1,3 +1,5 @@
+import CircleProgress from "./circle.progress";
+
 class CrudHelper {
    crud = async(controller, operation, model) => {
       const res = await fetch(`/api/${controller}/crud`, {
