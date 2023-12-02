@@ -11,43 +11,28 @@ import RecordState from "@/models/enums/record-state";
 import {Toast} from "primereact/toast";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import ItrCard from "@/components/ItrCard";
-import { Tooltip } from 'primereact/tooltip';
 import {classNames} from "primereact/utils";
 import { ConfirmPopup } from 'primereact/confirmpopup';
-
-async function getData() {
-   const res = await fetch('/api/division/read', {
-      cache: "no-store"
-   });
-
-   if (!res.ok) {
-      throw new Error('Failed to fetch data for divisions');
-   }
-
-   const result = await res.json();
-
-   return result.result;
-}
+import CrudHelper from "@/services/crud.helper.js"
+import CRUD from "@/models/enums/crud-type";
 
 const Divisions = () => {
+   const controllerName = "division";
    const emptyDivision: Division = {};
    const toast = useRef<Toast>(null);
-   const [divisions, setDivisions] = useState([]);
-   const [globalFilter, setGlobalFilter] = useState<string>('');
    const editor = useRef<ICardRef>(null);
+   const [divisions, setDivisions] = useState([]);
    const [cardHeader, setCardHeader] = useState('');
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [submitted, setSubmitted] = useState(false);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
    const [visibleConfirm, setVisibleConfirm] = useState(false);
-   const dropButton = useRef(null)
+   const [globalFilter, setGlobalFilter] = useState<string>('');
+   const [deletedDivision, setDeletedDivision] = useState<Division>(emptyDivision);
 
    useEffect(() => {
-      const reader = async () => {
-         const result = await getData();
-         return result;
-      }
-      reader().then((innerData) => {
-         setDivisions(innerData)
+      CrudHelper.crud(controllerName, CRUD.read, {}).then((result)=>{
+         setDivisions(result.data);
       });
    }, []);
 
@@ -123,24 +108,14 @@ const Divisions = () => {
       }
    }
 
-   const deleteDivision = async (data: Division) => {
-      const res = await fetch("/api/division/delete", {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-            id: data.id
-         }),
-      });
-
-      const reader = async () => {
-         const result = await getData();
-         return result;
+   const deleteDivision = async () => {
+      if (deletedDivision) {
+         CrudHelper.crud(controllerName, CRUD.delete, {id: deletedDivision.id}).then((result) => {
+            CrudHelper.crud(controllerName, CRUD.read, {}).then((result)=>{
+               setDivisions(result.data);
+            });
+         });
       }
-      reader().then((innerData) => {
-         setDivisions(innerData)
-      });
    }
 
    const saveDivision = async () => {
@@ -169,45 +144,36 @@ const Divisions = () => {
          return;
       }
       try {
-         if (recordState === RecordState.new) {
-            const res = await fetch("/api/division/create", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-               },
-               body: JSON.stringify({
-                  name: division.values.name,
-                  short_name: division.values.short_name,
-                  contacts: division.values.contacts,
-                  parent_id: division.values.parent_id
-               }),
+         setIsLoading(true);
+         const res = recordState === RecordState.new ?
+            await CrudHelper.crud(controllerName, CRUD.create, {
+               name: division.values.name,
+               short_name: division.values.short_name,
+               contacts: division.values.contacts,
+               parent_id: division.values.parent_id
+            }) :
+            await CrudHelper.crud(controllerName, CRUD.update, {
+               id: division.values.id,
+               name: division.values.name,
+               short_name: division.values.short_name,
+               contacts: division.values.contacts
             });
+
+         if (res.status === 'error'){
+            toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
+            setIsLoading(false);
          } else {
-            const res = await fetch("/api/division/update", {
-               method: "POST",
-               headers: {
-                  "Content-Type": "application/json",
-               },
-               body: JSON.stringify({
-                  id: division.values.id,
-                  name: division.values.name,
-                  short_name: division.values.short_name,
-                  contacts: division.values.contacts
-               }),
+            if (editor.current) {
+               editor.current.visible(false);
+            }
+            CrudHelper.crud(controllerName, CRUD.read, {}).then((result)=>{
+               setDivisions(result.data);
             });
-         }
-         const reader = async () => {
-            const result = await getData();
-            return result;
-         }
-         reader().then((innerData) => {
-            setDivisions(innerData)
-         });
-         if (editor.current) {
-            editor.current.visible(false);
+            setIsLoading(false);
          }
       } catch (e: any) {
          toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
+         setIsLoading(false);
       }
    }
    //#endregion
@@ -217,17 +183,15 @@ const Divisions = () => {
          <div className="flex flex-wrap gap-2">
             <Button type="button" icon="pi pi-pencil" severity="info" rounded tooltip="Редактировать" tooltipOptions={{position: "bottom"}} onClick={() => editDivision(item?.data)}></Button>
             <Button type="button" icon="pi pi-plus" severity="success" rounded tooltip="Добавить новое" tooltipOptions={{position: "bottom"}} onClick={() => createDivision(item?.data)}></Button>
-            <Button ref={dropButton} type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => setVisibleConfirm(true)}></Button>
+            <Button type="button" icon="pi pi-trash" severity="danger" rounded tooltip="Удалить" tooltipOptions={{position: "bottom"}} onClick={() => {setVisibleConfirm(true); setDeletedDivision(item?.data)}}></Button>
             <ConfirmPopup
                visible={visibleConfirm}
                onHide={() => setVisibleConfirm(false)}
                message="Вы действительно хотите удалить текущую запись?"
                icon="pi pi-exclamation-triangle"
-               //@ts-ignore
-               target={dropButton.current}
                acceptLabel="Да"
                rejectLabel="Нет"
-               accept={() => deleteDivision(item?.data)}/>
+               accept={() => deleteDivision()}/>
          </div>
       );
    };
