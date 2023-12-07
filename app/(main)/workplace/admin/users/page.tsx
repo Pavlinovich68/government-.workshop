@@ -24,6 +24,10 @@ import { InputSwitch } from "primereact/inputswitch";
 import circleProgress from '@/services/circle.progress.js'
 import CrudHelper from "@/services/crud.helper.js"
 import CRUD from "@/models/enums/crud-type";
+import { FileUpload, FileUploadHeaderTemplateOptions, ItemTemplateOptions } from 'primereact/fileupload';
+import { ProgressBar } from 'primereact/progressbar';
+import { Button } from 'primereact/button';
+import { Tag } from 'primereact/tag';
 
 
 const Users = () => {
@@ -41,6 +45,12 @@ const Users = () => {
    // При закрытии карточки через отмену восстанавливаем роли отсюда
    const [savedUserRoles, setSavedUserRoles] = useState<any>({});
    const [currentUserRoles, setCurrentUserRoles] = useState<any>({});
+   const [imageSize, setImageSize] = useState(0);
+   const fileUploadRef = useRef<FileUpload>(null);
+   const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
+   const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
+   const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+   const [attachChanged, setAttachChanged] = useState<boolean>(false);
 
 
 //#region GRID
@@ -183,6 +193,52 @@ const Users = () => {
       setCurrentUserRoles(_roles);
    }
 
+   const headerTemplate = (options: FileUploadHeaderTemplateOptions) => {
+      const { className, chooseButton, uploadButton, cancelButton } = options;
+      const value = imageSize / 10000;
+      const formatedValue = fileUploadRef && fileUploadRef.current ? fileUploadRef.current.formatSize(imageSize) : '0 B';
+
+      return (
+         <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
+            {chooseButton}
+            {cancelButton}
+            <div className="flex align-items-center gap-3 ml-auto">
+               <span>{formatedValue} / 1 MB</span>
+               <ProgressBar value={value} showValue={false} style={{ width: '10rem', height: '12px' }}></ProgressBar>
+            </div>
+         </div>
+      );
+   };
+
+   const onTemplateRemove = (file: File, callback: Function) => {
+      setImageSize(0);
+      callback();
+   };
+
+   const itemTemplate = (inFile: object, props: ItemTemplateOptions) => {
+      const file = inFile as File;
+      //@ts-ignore
+      const objectURL = file.objectURL;
+      return (
+         <div className="flex align-items-center flex-wrap">
+            <div className="flex align-items-center" style={{ width: '40%' }}>
+               <img alt={file.name} role="presentation" src={objectURL} width={100} />
+            </div>
+         </div>
+      );
+   };
+
+   const emptyTemplate = () => {
+      return (
+         <div className="flex align-items-center flex-column">
+            <i className="pi pi-image mt-3 p-5" style={{ fontSize: '5em', borderRadius: '50%', backgroundColor: 'var(--surface-b)', color: 'var(--surface-d)' }}></i>
+            <span style={{ fontSize: '1.2em', color: 'var(--text-color-secondary)' }} className="my-5">
+               Перетащите сюда изображение
+            </span>
+         </div>
+      );
+   };
+
    const card = () => {
       return (
          <form onSubmit={saveUser}>
@@ -249,6 +305,11 @@ const Users = () => {
                            user.values?.roles?.map((entry) => checkBox(entry))
                         }
                      </TabPanel>
+                     <TabPanel header="Фото">
+                     <FileUpload ref={fileUploadRef} name="demo[]" url="/api/upload" accept="image/*" maxFileSize={1000000}
+                        headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyTemplate}
+                        chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} onSelect={(e) => setAttachChanged(true) } onRemove={(e) => setAttachChanged(true) }/>
+                     </TabPanel>
                   </TabView>
                </div>
          </form>
@@ -301,6 +362,26 @@ const Users = () => {
       return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
+   const saveAttach = async(file: File) => {
+      debugger;
+      //@ts-ignore
+      const blob = await fetch(file.objectURL).then(r => r.blob());
+      var arrayBuffer;
+      var fileReader = new FileReader();
+      fileReader.onload = function(event: any) {
+         arrayBuffer = event.target.result;
+      };
+      fileReader.readAsArrayBuffer(blob);
+      const res = await fetch(`/api/attachment/upsert`, {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(blob),
+      });
+      return await res.json();
+   }
+
    const saveUser = async () => {
       setSubmitted(true);
       if (!user.isValid) {
@@ -331,11 +412,20 @@ const Users = () => {
       try {
          setIsLoading(true);
 
+         if (attachChanged) {
+            const attach = fileUploadRef.current?.getFiles()[0];
+            if (attach) {
+               const attachId = await saveAttach(attach);
+               user.values.attachment_id = attachId;
+            }
+         }
+
          const res = recordState === RecordState.new ?
             await CrudHelper.crud(controllerName, CRUD.create, user.values) :
             await CrudHelper.crud(controllerName, CRUD.update, user.values);
 
          setIsLoading(false);
+         setAttachChanged(false);
 
          if (res.status === 'error'){
             toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
