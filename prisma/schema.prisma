@@ -67,11 +67,12 @@ model users {
 }
 
 model attachment {
-   id       Int     @id @default(autoincrement())
-   filename String  @db.VarChar(100)
-   name     String? @db.VarChar(100)
-   md5      String  @db.VarChar(16)
-   body     Bytes   @db.ByteA
+   id       Int      @id @default(autoincrement())
+   filename String   @db.VarChar(100)
+   body     Bytes    @db.ByteA
+   type     String   @db.VarChar(50)
+   date     DateTime @db.Timestamp(6)
+   size     BigInt   @db.BigInt
    users    users[]
 }
 

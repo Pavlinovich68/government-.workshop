@@ -362,22 +362,36 @@ const Users = () => {
       return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
-   const saveAttach = async(file: File) => {
+   const saveAttach = async(file: any) => {
+      // function getBase64(f: any) {
+      //       const reader = new FileReader()
+      //       return new Promise(resolve => {
+      //       reader.onload = ev => {
+      //          //@ts-ignore
+      //          resolve(ev.target.result)
+      //       }
+      //       reader.readAsDataURL(f)
+      //    })
+      // }
+      // const blob = await Promise.resolve(getBase64(file));
+      // const data = {
+      //    filename: file.name,
+      //    type: file.type,
+      //    size: file.size,
+      //    //@ts-ignore
+      //    date: file.lastModifiedDate,
+      //    body: blob,
+      //    id: null
+      // }
+      let data = new FormData()
+      data.append('file', file);
       debugger;
-      //@ts-ignore
-      const blob = await fetch(file.objectURL).then(r => r.blob());
-      var arrayBuffer;
-      var fileReader = new FileReader();
-      fileReader.onload = function(event: any) {
-         arrayBuffer = event.target.result;
-      };
-      fileReader.readAsArrayBuffer(blob);
       const res = await fetch(`/api/attachment/upsert`, {
          method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify(blob),
+         // headers: {
+         //    "Content-Type": "multipart/form-data",
+         // },
+         body: data
       });
       return await res.json();
    }
@@ -415,8 +429,9 @@ const Users = () => {
          if (attachChanged) {
             const attach = fileUploadRef.current?.getFiles()[0];
             if (attach) {
-               const attachId = await saveAttach(attach);
-               user.values.attachment_id = attachId;
+               const attachResult = await saveAttach(attach);
+               console.log(attachResult);
+               //user.values.attachment_id = attachId;
             }
          }
 
