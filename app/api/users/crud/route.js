@@ -39,7 +39,8 @@ export const POST = async (request) => {
          roles[role.role] = role.name;
       }
 
-      await mailService.newUser(model.email, password);
+      //TODO Отправка пароля на почту
+      //await mailService.newUser(model.email, password);
 
       const result = await prisma.users.create({
          data: {
@@ -50,7 +51,8 @@ export const POST = async (request) => {
             end_date: model.end_date !== null ? new Date(model.end_date) : null,
             roles: roles,
             division_id: model.division_id,
-            password: hashedPassword
+            password: hashedPassword,
+            attachment_id: model.attachment_id
          }
       });
 
@@ -114,7 +116,8 @@ export const POST = async (request) => {
             begin_date: new Date(model.begin_date),
             end_date: model.end_date !== null ? new Date(model.end_date) : null,
             roles: roles,
-            division_id: model.division_id
+            division_id: model.division_id,
+            attachment_id: model.attachment_id
          }
       });
 

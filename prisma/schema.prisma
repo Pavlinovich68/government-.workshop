@@ -72,7 +72,8 @@ model attachment {
    body     Bytes    @db.ByteA
    type     String   @db.VarChar(50)
    date     DateTime @db.Timestamp(6)
-   size     BigInt   @db.BigInt
+   md5      String   @db.VarChar(32)
+   size     Int
    users    users[]
 }
 

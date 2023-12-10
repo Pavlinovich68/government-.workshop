@@ -32,7 +32,7 @@ import { Tag } from 'primereact/tag';
 
 const Users = () => {
    const controllerName = 'users';
-   const emptyUser: User = {name: '', begin_date: new Date, end_date: null, roles: []};
+   const emptyUser: User = {name: '', begin_date: new Date, end_date: null, roles: [], attachment_id: null};
    const [columnFields] = useState(["name", "division.name", "email", "begin_date", "end_date"]);
    const grid = useRef<IGridRef>(null);
    const toast = useRef<Toast>(null);
@@ -45,12 +45,13 @@ const Users = () => {
    // При закрытии карточки через отмену восстанавливаем роли отсюда
    const [savedUserRoles, setSavedUserRoles] = useState<any>({});
    const [currentUserRoles, setCurrentUserRoles] = useState<any>({});
-   const [imageSize, setImageSize] = useState(0);
    const fileUploadRef = useRef<FileUpload>(null);
    const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
    const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
    const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
    const [attachChanged, setAttachChanged] = useState<boolean>(false);
+   const [attachmentId, setAttachmentId] = useState<number | undefined | null>(null);
+   const [imageSrc, setImageSrc] = useState();
 
 
 //#region GRID
@@ -130,25 +131,12 @@ const Users = () => {
          });
          return result;
       }
-      const fetchData = async () => {
-         try {
-            const res = await fetch('/api/division/read', {
-               cache: "no-store"
-            });
-            if (!res.ok) {
-               throw new Error('Failed to fetch data for divisions');
-            }
-            await res.json().then((item) => {
-               if (item.status === 'success') {
-                  let treeNodes = prepareData(item.result);
-                  setDivisions(treeNodes);
-               }
-            });
-         } catch (e){
-            console.log(e);
+      CrudHelper.crud('division', CRUD.read, {}).then((item) => {
+         if (item.status === 'success') {
+            let treeNodes = prepareData(item.data);
+            setDivisions(treeNodes);
          }
-      }
-      fetchData();
+      });
    }
 
    const user = useFormik<User>({
@@ -194,35 +182,29 @@ const Users = () => {
    }
 
    const headerTemplate = (options: FileUploadHeaderTemplateOptions) => {
-      const { className, chooseButton, uploadButton, cancelButton } = options;
-      const value = imageSize / 10000;
-      const formatedValue = fileUploadRef && fileUploadRef.current ? fileUploadRef.current.formatSize(imageSize) : '0 B';
+      const { className, chooseButton, cancelButton } = options;
 
       return (
          <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
             {chooseButton}
             {cancelButton}
-            <div className="flex align-items-center gap-3 ml-auto">
-               <span>{formatedValue} / 1 MB</span>
-               <ProgressBar value={value} showValue={false} style={{ width: '10rem', height: '12px' }}></ProgressBar>
-            </div>
          </div>
       );
    };
 
    const onTemplateRemove = (file: File, callback: Function) => {
-      setImageSize(0);
       callback();
    };
 
    const itemTemplate = (inFile: object, props: ItemTemplateOptions) => {
       const file = inFile as File;
       //@ts-ignore
-      const objectURL = file.objectURL;
+      //const objectURL = file.objectURL;
+      setImageSrc(file.objectURL);
       return (
          <div className="flex align-items-center flex-wrap">
             <div className="flex align-items-center" style={{ width: '40%' }}>
-               <img alt={file.name} role="presentation" src={objectURL} width={100} />
+               <img alt={file.name} role="presentation" src={imageSrc} width={100} />
             </div>
          </div>
       );
@@ -317,10 +299,34 @@ const Users = () => {
    }
 //#endregion
 
+//#region Attachment
+   const readAttachment = async (id: number | undefined | null) => {
+      setAttachmentId(id)
+      if (!id){
+         return;
+      }
+      const res = await fetch(`/api/attachment/read?id=${id}`, {
+         method: "GET",
+         headers: {
+            "Content-Type": "application/json",
+         }
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+         debugger;
+         const blob = new Blob(data.data.body.data, { type: data.data.type });
+         const imageUrl = URL.createObjectURL(blob);
+         //@ts-ignore
+         setImageSrc(imageUrl);
+      }
+   }
+//#endregion
+
 //#region CRUD
    const saveUserRoles = (currentRoles: any) => {
       let _roles = [];
       for(const role of currentRoles){
+         //@ts-ignore
          _roles.push({role: role.role, name: role.name, active: role.active});
       }
       setSavedUserRoles(_roles);
@@ -336,6 +342,7 @@ const Users = () => {
       setCardHeader('Создание нового пользователя');
       getDivisionsTree();
       user.setValues(emptyUser);
+      setAttachmentId(null);
       setCurrentUserRoles(emptyUser.roles);
       saveUserRoles(emptyUser.roles);
       setRecordState(RecordState.new);
@@ -345,10 +352,11 @@ const Users = () => {
       }
    }
 
-   const updateUser = (data: User) => {
+   const updateUser = async (data: User) => {
       setCardHeader('Редактирование пользователя');
       getDivisionsTree();
       user.setValues(data);
+      const attach = await readAttachment(data.attachment_id);
       setCurrentUserRoles(data.roles);
       saveUserRoles(data.roles);
       setRecordState(RecordState.edit);
@@ -362,35 +370,11 @@ const Users = () => {
       return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
-   const saveAttach = async(file: any) => {
-      // function getBase64(f: any) {
-      //       const reader = new FileReader()
-      //       return new Promise(resolve => {
-      //       reader.onload = ev => {
-      //          //@ts-ignore
-      //          resolve(ev.target.result)
-      //       }
-      //       reader.readAsDataURL(f)
-      //    })
-      // }
-      // const blob = await Promise.resolve(getBase64(file));
-      // const data = {
-      //    filename: file.name,
-      //    type: file.type,
-      //    size: file.size,
-      //    //@ts-ignore
-      //    date: file.lastModifiedDate,
-      //    body: blob,
-      //    id: null
-      // }
+   const saveAttach = async(file: File) => {
       let data = new FormData()
       data.append('file', file);
-      debugger;
-      const res = await fetch(`/api/attachment/upsert`, {
+      const res = await fetch(`/api/attachment/upsert?id=${attachmentId}`, {
          method: "POST",
-         // headers: {
-         //    "Content-Type": "multipart/form-data",
-         // },
          body: data
       });
       return await res.json();
@@ -430,8 +414,7 @@ const Users = () => {
             const attach = fileUploadRef.current?.getFiles()[0];
             if (attach) {
                const attachResult = await saveAttach(attach);
-               console.log(attachResult);
-               //user.values.attachment_id = attachId;
+               user.values.attachment_id = attachResult.data.id;
             }
          }
 

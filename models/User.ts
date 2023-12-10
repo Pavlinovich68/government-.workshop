@@ -10,5 +10,5 @@ export interface User {
    begin_date: Date,
    end_date?: Date | undefined | null,
    roles: any,
-   attachment_id?: number
+   attachment_id?: number | undefined | null
 }
