@@ -8,11 +8,6 @@ const md5 = (content: any) => {
 
 export const POST = async (request: NextRequest) => {
    const model = await request.json();
-   //const url = new URL(request.url);
-   //const id = url.searchParams.get("id");
-   //const data = await request.formData()
-   //const file: File | null = data.get('file') as unknown as File;
-   //let buf = await file.arrayBuffer().then((data) => data);
    const hash = md5(model.body);
    let result = await prisma.attachment.findFirst({
       where: {
@@ -36,8 +31,6 @@ export const POST = async (request: NextRequest) => {
    if (!result) {
       let buffer = Buffer.from(model.body);
       const fileDate = new Date(model.date);
-      //const encoder = new TextEncoder();
-      //const arr = encoder.encode(model.body);
       result = await prisma.attachment.create({
          data: {
             filename: model.filename,

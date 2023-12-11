@@ -213,7 +213,7 @@ const Users = () => {
       return (
          <div className="flex align-items-center flex-wrap">
             <div className="flex align-items-center" style={{ width: '40%' }}>
-               <img alt="loadedFromDataBaseImage" role="presentation" src={imageSrc} width={100} />
+               <img alt={"loadedFromDataBaseImage"} role="presentation" src={imageSrc} width={100} />
             </div>
          </div>
       );
@@ -298,7 +298,7 @@ const Users = () => {
                      </TabPanel>
                      <TabPanel header="Фото">
                      <FileUpload ref={fileUploadRef} name="demo[]" url="/api/upload" accept="image/*" maxFileSize={1000000}
-                        headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={imageSrc === '' ? emptyTemplate : loadedTemplate} 
+                        headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={imageSrc === '' ? emptyTemplate : loadedTemplate}
                         chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} onSelect={(e) => setAttachChanged(true) } onRemove={(e) => setAttachChanged(true) }/>
                      </TabPanel>
                   </TabView>

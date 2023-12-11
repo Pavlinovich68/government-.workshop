@@ -91,15 +91,15 @@ const gridColumns = [
                                           value={hall.values.name}
                                           onChange={(e) => hall.setFieldValue('name', e.target.value)} required autoFocus type="text"/>
                   </div>
-                  <div className="field col-12 md:col-12">
+                  <div className="field col-6 md:col-6">
                      <label htmlFor="short_name">Короткое наименование</label>
                      <InputText id="short_name"  placeholder="Короткое наименование"
                                        className={classNames({"p-invalid": submitted && !hall.values.short_name})}
                                        value={hall.values.short_name}
                                        onChange={(e) => hall.setFieldValue('short_name', e.target.value)} required autoFocus type="text"/>
                   </div>
-                  <div className="field col-12 md:col-6">
-                     <label htmlFor="capacity"></label>
+                  <div className="field col-6 md:col-6">
+                     <label htmlFor="capacity">Вместимость зала</label>
                      <InputNumber id="capacity" placeholder="Вместимость зала"
                                        className={classNames({"p-invalid": submitted && !hall.values.capacity})}
                                        value={hall.values.capacity}
