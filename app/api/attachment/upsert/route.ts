@@ -7,25 +7,26 @@ const md5 = (content: any) => {
 }
 
 export const POST = async (request: NextRequest) => {
-   const url = new URL(request.url);
-   const id = url.searchParams.get("id");
-   const data = await request.formData()
-   const file: File | null = data.get('file') as unknown as File;
-   let buf = await file.arrayBuffer().then((data) => data);
-   const hash = md5(buf.toString());
+   const model = await request.json();
+   //const url = new URL(request.url);
+   //const id = url.searchParams.get("id");
+   //const data = await request.formData()
+   //const file: File | null = data.get('file') as unknown as File;
+   //let buf = await file.arrayBuffer().then((data) => data);
+   const hash = md5(model.body);
    let result = await prisma.attachment.findFirst({
       where: {
-         type: file.type,
-         filename: file.name,
-         size: file.size,
+         type: model.type,
+         filename: model.filename,
+         size: model.size,
          md5: hash
       }
    });
-   if (id && id !== 'null' && parseInt(id) !== result?.id){
+   if (model.id && model.id !== result?.id){
       try {
          const droppedAttachment = await prisma.attachment.delete({
             where: {
-               id: parseInt(id)
+               id: model.id
             }
          })
       } catch(error) {
@@ -33,13 +34,16 @@ export const POST = async (request: NextRequest) => {
       }
    }
    if (!result) {
-      let buffer = Buffer.from(buf);
+      let buffer = Buffer.from(model.body);
+      const fileDate = new Date(model.date);
+      //const encoder = new TextEncoder();
+      //const arr = encoder.encode(model.body);
       result = await prisma.attachment.create({
          data: {
-            filename: file.name,
-            type: file.type,
-            size: file.size,
-            date: new Date(file.lastModified),
+            filename: model.filename,
+            type: model.type,
+            size: model.size,
+            date: fileDate,
             body: buffer,
             md5: hash
          }

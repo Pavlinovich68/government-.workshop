@@ -51,7 +51,7 @@ const Users = () => {
    const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
    const [attachChanged, setAttachChanged] = useState<boolean>(false);
    const [attachmentId, setAttachmentId] = useState<number | undefined | null>(null);
-   const [imageSrc, setImageSrc] = useState();
+   const [imageSrc, setImageSrc] = useState('');
 
 
 //#region GRID
@@ -199,12 +199,21 @@ const Users = () => {
    const itemTemplate = (inFile: object, props: ItemTemplateOptions) => {
       const file = inFile as File;
       //@ts-ignore
-      //const objectURL = file.objectURL;
-      setImageSrc(file.objectURL);
+      const objectURL = file.objectURL;
       return (
          <div className="flex align-items-center flex-wrap">
             <div className="flex align-items-center" style={{ width: '40%' }}>
-               <img alt={file.name} role="presentation" src={imageSrc} width={100} />
+               <img alt={file.name} role="presentation" src={objectURL} width={100} />
+            </div>
+         </div>
+      );
+   };
+
+   const loadedTemplate = () => {
+      return (
+         <div className="flex align-items-center flex-wrap">
+            <div className="flex align-items-center" style={{ width: '40%' }}>
+               <img alt="loadedFromDataBaseImage" role="presentation" src={imageSrc} width={100} />
             </div>
          </div>
       );
@@ -289,7 +298,7 @@ const Users = () => {
                      </TabPanel>
                      <TabPanel header="Фото">
                      <FileUpload ref={fileUploadRef} name="demo[]" url="/api/upload" accept="image/*" maxFileSize={1000000}
-                        headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={emptyTemplate}
+                        headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={imageSrc === '' ? emptyTemplate : loadedTemplate} 
                         chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} onSelect={(e) => setAttachChanged(true) } onRemove={(e) => setAttachChanged(true) }/>
                      </TabPanel>
                   </TabView>
@@ -301,6 +310,7 @@ const Users = () => {
 
 //#region Attachment
    const readAttachment = async (id: number | undefined | null) => {
+      setImageSrc('');
       setAttachmentId(id)
       if (!id){
          return;
@@ -313,11 +323,7 @@ const Users = () => {
       });
       const data = await res.json();
       if (data.status === 'success') {
-         debugger;
-         const blob = new Blob(data.data.body.data, { type: data.data.type });
-         const imageUrl = URL.createObjectURL(blob);
-         //@ts-ignore
-         setImageSrc(imageUrl);
+         setImageSrc(data.data.body);
       }
    }
 //#endregion
@@ -370,17 +376,38 @@ const Users = () => {
       return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
    }
 
+   const toBase64 = (file: File): Promise<string> =>
+      new Promise((resolve, reject) => {
+         const reader = new FileReader();
+         reader.readAsDataURL(file);
+         reader.onload = () => resolve(reader.result as string);
+         reader.onerror = (error) => reject(error);
+   });
+
    const saveAttach = async(file: File) => {
-      let data = new FormData()
-      data.append('file', file);
-      const res = await fetch(`/api/attachment/upsert?id=${attachmentId}`, {
+      const base64 = await toBase64(file);
+      const model = {
+         type: file.type,
+         filename: file.name,
+         size: file.size,
+         //@ts-ignore
+         date: file.lastModifiedDate,
+         body: base64,
+         id: attachmentId
+      }
+      const res = await fetch(`/api/attachment/upsert`, {
          method: "POST",
-         body: data
+         //body: data,
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(model),
       });
       return await res.json();
    }
 
    const saveUser = async () => {
+      debugger;
       setSubmitted(true);
       if (!user.isValid) {
          const errors = Object.values(user.errors);
