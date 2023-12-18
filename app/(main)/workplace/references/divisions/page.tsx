@@ -15,6 +15,9 @@ import {classNames} from "primereact/utils";
 import { ConfirmPopup } from 'primereact/confirmpopup';
 import CrudHelper from "@/services/crud.helper.js"
 import CRUD from "@/models/enums/crud-type";
+import { TabView, TabPanel } from 'primereact/tabview';
+import { PickList } from "primereact/picklist";
+import { Hall } from "@/models/Hall";
 
 const Divisions = () => {
    const controllerName = "division";
@@ -29,6 +32,8 @@ const Divisions = () => {
    const [visibleConfirm, setVisibleConfirm] = useState(false);
    const [globalFilter, setGlobalFilter] = useState<string>('');
    const [deletedDivision, setDeletedDivision] = useState<Division>(emptyDivision);
+   const [allHalls, setAllHalls] = useState([]);
+   const [selectedHalls, setSelectedHalls] = useState([]);
 
    useEffect(() => {
       CrudHelper.crud(controllerName, CRUD.read, {}).then((result)=>{
@@ -58,39 +63,77 @@ const Divisions = () => {
       return (
          <form onSubmit={saveDivision}>
             <div className="card p-fluid">
-               <div className="p-fluid formgrid grid">
-                  <div className="field col-12">
-                     <label htmlFor="name">Наименование подразделения</label>
-                     <InputText id="name"  placeholder="Наименование"
-                                          className={classNames({"p-invalid": submitted && !division.values.name})}
-                                          value={division.values.name}
-                                          onChange={(e) => division.setFieldValue('name', e.target.value)} required autoFocus type="text"/>
-                  </div>
-                  <div className="field col-12 md:col-6">
-                     <label htmlFor="short_name">Короткое наименование</label>
-                     <InputText id="short_name"  placeholder="Короткое наименование"
-                                       className={classNames({"p-invalid": submitted && !division.values.short_name})}
-                                       value={division.values.short_name}
-                                       onChange={(e) => division.setFieldValue('short_name', e.target.value)} required autoFocus type="text"/>
-                  </div>
-                  <div className="field col-12 md:col-6">
-                     <label htmlFor="contacts">Контактная информация</label>
-                     <InputText id="contacts" placeholder="Контактная информация"
-                                       value={division.values.contacts}
-                                       onChange={(e) => division.setFieldValue('contacts', e.target.value)} required autoFocus type="text"/>
-                  </div>
-               </div>
+               <TabView>
+                  <TabPanel header="Основные данные">
+                     <div className="p-fluid formgrid grid">
+                        <div className="field col-12">
+                           <label htmlFor="name">Наименование подразделения</label>
+                           <InputText id="name"  placeholder="Наименование"
+                                                className={classNames({"p-invalid": submitted && !division.values.name})}
+                                                value={division.values.name}
+                                                onChange={(e) => division.setFieldValue('name', e.target.value)} required autoFocus type="text"/>
+                        </div>
+                        <div className="field col-12 md:col-6">
+                           <label htmlFor="short_name">Короткое наименование</label>
+                           <InputText id="short_name"  placeholder="Короткое наименование"
+                                             className={classNames({"p-invalid": submitted && !division.values.short_name})}
+                                             value={division.values.short_name}
+                                             onChange={(e) => division.setFieldValue('short_name', e.target.value)} required autoFocus type="text"/>
+                        </div>
+                        <div className="field col-12 md:col-6">
+                           <label htmlFor="contacts">Контактная информация</label>
+                           <InputText id="contacts" placeholder="Контактная информация"
+                                             value={division.values.contacts}
+                                             onChange={(e) => division.setFieldValue('contacts', e.target.value)} required autoFocus type="text"/>
+                        </div>
+                     </div>
+                  </TabPanel>
+                  <TabPanel header="Доступные залы">
+                     <PickList source={allHalls} target={selectedHalls} onChange={onHallsChange} itemTemplate={hallsItemTemplate}
+                        filterBy="short_name" breakpoint="800px" sourceHeader={"Все залы"} targetHeader={"Доступные"} sourceStyle={{height: "24rem"}}
+                        targetStyle={{height: "24rem"}} sourceFilterPlaceholder="Поиск..." targetFilterPlaceholder="Поиск..."
+                     />
+                  </TabPanel>
+               </TabView>
             </div>
          </form>
+      );
+   }
+
+   const onHallsChange = (event: any) => {
+      setAllHalls(event.source);
+      setSelectedHalls(event.target);
+   }
+
+   const hallsItemTemplate = (item: Hall) => {
+      return (
+         <div className="flex flex-wrap p-2 align-items-center gap-3">
+            <div className="flex-1 flex flex-column gap-2">
+               <span className="font-bold">{item.short_name}</span>
+            </div>
+         </div>
       );
    }
    //#endregion
 
    //#region CRUD
+   const hallList = async() => {
+      const res = await fetch(`/api/hall/list`, {
+         method: "GET",
+         headers: {
+            "Content-Type": "application/json",
+         }
+      });
+      return await res.json();
+   }
+
    const createDivision = (data: Division | null) => {
       setCardHeader('Создание нового подразделения');
       emptyDivision.parent_id = data?.id;
       division.setValues(emptyDivision);
+      hallList().then((result)=>{
+         setAllHalls(result.data);
+      });
       setRecordState(RecordState.new);
       setSubmitted(false);
       if (editor.current) {
@@ -101,6 +144,9 @@ const Divisions = () => {
    const editDivision = (data: Division) => {
       setCardHeader('Редактирование подразделения');
       division.setValues(data);
+      hallList().then((result)=>{
+         setAllHalls(result.data);
+      });
       setRecordState(RecordState.edit);
       setSubmitted(false);
       if (editor.current) {

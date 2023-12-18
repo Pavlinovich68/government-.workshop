@@ -7,6 +7,9 @@ export const POST = async (request) => {
    const readNode = async (id) => {
       const data = await prisma.division.findMany({
          where : {parent_id: id},
+         include: {
+            halls: true,
+         },
          orderBy: {
             name: 'asc'
          }
@@ -19,7 +22,8 @@ export const POST = async (request) => {
                id: item.id,
                name: item.name,
                short_name: item.short_name,
-               contacts: item.contacts
+               contacts: item.contacts,
+               halls: item.halls
             }
          }
       });

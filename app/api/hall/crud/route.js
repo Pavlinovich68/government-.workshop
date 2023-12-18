@@ -17,27 +17,27 @@ export const POST = async (request) => {
    }
 
    const read = async (model) => {
-      let filter = {};
-      if (model.searchStr) {
-         filter['OR'] = prismaHelper.OR(['name', 'short_name'], model.searchStr);
-      }
+         let filter = {};
+         if (model.searchStr) {
+            filter['OR'] = prismaHelper.OR(['name', 'short_name'], model.searchStr);
+         }
 
-      const totalCount = await prisma.hall.count({where: filter});
-      const result = await prisma.hall.findMany({
-         skip: model.pageSize * (model.pageNo -1),
-         take: model.pageSize,
-         where: filter,
-         orderBy: model.orderBy
-      });
+         const totalCount = await prisma.hall.count({where: filter});
+         const result = await prisma.hall.findMany({
+            skip: model.pageSize * (model.pageNo -1),
+            take: model.pageSize,
+            where: filter,
+            orderBy: model.orderBy
+         });
 
-      let data = {
-         recordCount: totalCount,
-         pageCount: Math.ceil(totalCount / model.pageSize),
-         pageNo: model.pageNo,
-         pageSize: model.pageSize,
-         result: result
-      };
-      return data;
+         let data = {
+            recordCount: totalCount,
+            pageCount: Math.ceil(totalCount / model.pageSize),
+            pageNo: model.pageNo,
+            pageSize: model.pageSize,
+            result: result
+         };
+         return data;
    }
 
    const update = async (model) => {
