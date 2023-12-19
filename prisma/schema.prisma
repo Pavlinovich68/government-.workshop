@@ -81,6 +81,7 @@ model hall {
    id         Int        @id @default(autoincrement())
    name       String?    @unique(map: "hall_u_ind") @db.VarChar(200)
    short_name String?    @unique(map: "hall_short_u_ind") @db.VarChar(50)
+   address    String?    @db.VarChar(100)
    //Вместимость
    capacity   Int        @db.Integer
    divisions   division[]
