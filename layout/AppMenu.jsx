@@ -22,8 +22,11 @@ const AppMenu = () => {
       return intersection.length > 0
    }
 
+   console.log('!!! USER !!!', session?.user);
+
    const reserveHoll = () => {
-      return [];
+      const items = session?.user.halls.map((i) => { return {label: i.short_name}})
+      return items;
    }
 
    const reserveConf = () => {
@@ -32,46 +35,57 @@ const AppMenu = () => {
 
    const model = [
       {
-         label: 'Совещательные залы',
-         visible: checkRoles(['admin', 'reserve-holl']),
-         items: reserveHoll() 
-      },
-      {
-         label: 'Комнаты ВКС',
-         visible: checkRoles(['admin', 'reserve-conf']),
-         items: reserveConf()
-      },
-      {
-         label: 'Справочники',
-         visible: checkRoles(['admin']),
+         label: 'Бронирование',
          items: [
             {
-               label: 'Подразделения',
-               icon: 'pi pi-fw pi-sitemap',
-               to: '/workplace/references/divisions'
-            },
-            {
-               visible: checkRoles(['admin']),
-               label: 'Здания',
-               icon: 'pi pi-fw pi-building',
-               to: '/workplace/references/buildings'
-            },
-            {
                label: 'Совещательные залы',
-               icon: 'pi pi-fw pi-volume-up',
-               to: '/workplace/references/hall'
+               visible: checkRoles(['admin', 'reserve-holl']),
+               items: reserveHoll(),
+            },
+            {
+               label: 'Комнаты ВКС',
+               visible: checkRoles(['admin', 'reserve-conf']),
+               items: reserveConf()
             }
          ]
       },
       {
-         label: 'Администрирование',
+         label: 'Инструменты',
          visible: checkRoles(['admin']),
          items: [
             {
-               label: 'Пользователи',
+               label: 'Справочники',
                visible: checkRoles(['admin']),
-               icon: 'pi pi-fw pi-user',
-               to: '/workplace/admin/users'
+               items: [
+                  {
+                     label: 'Подразделения',
+                     icon: 'pi pi-fw pi-sitemap',
+                     to: '/workplace/references/divisions'
+                  },
+                  {
+                     visible: checkRoles(['admin']),
+                     label: 'Здания',
+                     icon: 'pi pi-fw pi-building',
+                     to: '/workplace/references/buildings'
+                  },
+                  {
+                     label: 'Совещательные залы',
+                     icon: 'pi pi-fw pi-volume-up',
+                     to: '/workplace/references/hall'
+                  }
+               ]
+            },
+            {
+               label: 'Администрирование',
+               visible: checkRoles(['admin']),
+               items: [
+                  {
+                     label: 'Пользователи',
+                     visible: checkRoles(['admin']),
+                     icon: 'pi pi-fw pi-user',
+                     to: '/workplace/admin/users'
+                  }
+               ]
             }
          ]
       }

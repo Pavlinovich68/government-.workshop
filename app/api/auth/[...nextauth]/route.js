@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
+import { use } from 'react';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,9 @@ export const authOptions = {
                where: {
                   email: credentials.email
                },
-               include: { division: true }
+               include: { 
+                  division: true
+               }
             });
 
             if (!user) {
@@ -39,6 +42,17 @@ export const authOptions = {
             if (!passwordsMatch) {
                return null;
             }
+
+            const division = await prisma.division.findUnique({
+               where: {
+                  id: user.division.id
+               },
+               include: { 
+                  halls: true
+               }
+            });
+
+            user.halls = division.halls;
 
             return user;
          }
@@ -53,6 +67,7 @@ export const authOptions = {
             token.division_id = user.division_id;
             token.division_name = user.division?.name
             token.roles = user.roles;
+            token.halls = user.halls;
          }
          return token;
       },
@@ -61,6 +76,7 @@ export const authOptions = {
             session.user.division_id = token.division_id;
             session.user.division_name = token.division_name;
             session.user.roles = token.roles;
+            session.user.halls = token.halls;
          }
          return session;
       }
