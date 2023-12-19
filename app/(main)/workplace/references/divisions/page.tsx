@@ -109,8 +109,12 @@ const Divisions = () => {
       return (
          <div className="flex flex-wrap p-2 align-items-center gap-3">
             <div className="flex-1 flex flex-column gap-2">
-               <span className="font-bold">{item.short_name}</span>
-            </div>
+               <span className="font-bold">{item.name}</span>
+                  <div className="flex align-items-center gap-2 text-xs">
+                     <i className="pi pi-map-marker text-sm"></i>
+                     <span className="font-italic">{item.address}</span>
+                  </div>
+               </div>
          </div>
       );
    }
@@ -134,6 +138,7 @@ const Divisions = () => {
       hallList().then((result)=>{
          setAllHalls(result.data);
       });
+      setSelectedHalls([]);
       setRecordState(RecordState.new);
       setSubmitted(false);
       if (editor.current) {
@@ -144,8 +149,12 @@ const Divisions = () => {
    const editDivision = (data: Division) => {
       setCardHeader('Редактирование подразделения');
       division.setValues(data);
+      //@ts-ignore
+      setSelectedHalls(data.halls);
       hallList().then((result)=>{
-         setAllHalls(result.data);
+         //@ts-ignore
+         const delta = result.data.filter((i) => !data.halls?.map(j => j.id).includes(i.id));
+         setAllHalls(delta);
       });
       setRecordState(RecordState.edit);
       setSubmitted(false);
@@ -191,18 +200,22 @@ const Divisions = () => {
       }
       try {
          setIsLoading(true);
+         //@ts-ignore
+         division.values.halls = selectedHalls.map((item) => item.id);
          const res = recordState === RecordState.new ?
             await CrudHelper.crud(controllerName, CRUD.create, {
                name: division.values.name,
                short_name: division.values.short_name,
                contacts: division.values.contacts,
-               parent_id: division.values.parent_id
+               parent_id: division.values.parent_id,
+               halls: division.values.halls
             }) :
             await CrudHelper.crud(controllerName, CRUD.update, {
                id: division.values.id,
                name: division.values.name,
                short_name: division.values.short_name,
-               contacts: division.values.contacts
+               contacts: division.values.contacts,
+               halls: division.values.halls
             });
 
          if (res.status === 'error'){

@@ -20,7 +20,7 @@ import CRUD from "@/models/enums/crud-type";
 
 const Hall = () => {
    const controllerName = 'hall';
-   const emptyHall: Hall = {name: '', short_name: '', capacity: 10};
+   const emptyHall: Hall = {name: '', short_name: '', capacity: 10, address: ''};
    const [columnFields] = useState(["name", "short_name", "capacity"]);
    const grid = useRef<IGridRef>(null);
    const toast = useRef<Toast>(null);
@@ -71,6 +71,9 @@ const gridColumns = [
          if (!data.capacity){
             errors.capacity = "Вместимость зала должна быть указана!";
          }
+         if (!data.address){
+            errors.address = "Расположение зала должно быть заполнено!";
+         }
          return errors;
       },
       onSubmit: () => {
@@ -104,6 +107,13 @@ const gridColumns = [
                                        className={classNames({"p-invalid": submitted && !hall.values.capacity})}
                                        value={hall.values.capacity}
                                        onValueChange={(e) => hall.setFieldValue('capacity', e.value)} required autoFocus mode="decimal" showButtons min={0} max={1000}/>
+                  </div>
+                  <div className="field col-12">
+                     <label htmlFor="address">Расположение дибо адрес зала</label>
+                     <InputText id="address"  placeholder="Адрес"
+                                          className={classNames({"p-invalid": submitted && !hall.values.address})}
+                                          value={hall.values.address}
+                                          onChange={(e) => hall.setFieldValue('address', e.target.value)} required autoFocus type="text"/>
                   </div>
                </div>
             </div>
@@ -168,13 +178,15 @@ const gridColumns = [
             await CrudHelper.crud(controllerName, CRUD.create, {
                name: hall.values.name,
                short_name: hall.values.short_name,
-               capacity: hall.values.capacity
+               capacity: hall.values.capacity,
+               address: hall.values.address
             }) :
             await CrudHelper.crud(controllerName, CRUD.update, {
                id: hall.values.id,
                name: hall.values.name,
                short_name: hall.values.short_name,
-               capacity: hall.values.capacity
+               capacity: hall.values.capacity,
+               address: hall.values.address
             });
 
          if (res.status === 'error'){

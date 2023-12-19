@@ -10,6 +10,7 @@ export const POST = async (request) => {
             name: model.name,
             short_name: model.short_name,
             capacity: model.capacity,
+            address: model.address
          }
       });
 
@@ -49,6 +50,7 @@ export const POST = async (request) => {
             name: model.name,
             short_name: model.short_name,
             capacity: model.capacity,
+            address: model.address
          }
       });
 
