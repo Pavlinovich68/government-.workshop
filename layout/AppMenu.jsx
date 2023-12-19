@@ -1,16 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import AppMenuitem from './AppMenuitem';
 import {useSession} from "next-auth/react";
-import { LayoutContext } from './context/layoutcontext';
 import { MenuProvider } from './context/menucontext';
 
 const AppMenu = () => {
    const {data: session, status, update} = useSession();
-
-   const { layoutConfig } = useContext(LayoutContext);
 
    const checkRoles = (accessRoles) => {
       const userRoles = session?.user?.roles;
@@ -22,10 +19,8 @@ const AppMenu = () => {
       return intersection.length > 0
    }
 
-   console.log('!!! USER !!!', session?.user);
-
    const reserveHoll = () => {
-      const items = session?.user.halls.map((i) => { return {label: i.short_name}})
+      const items = session?.user?.halls?.map((i) => { return {label: i.short_name}})
       return items;
    }
 

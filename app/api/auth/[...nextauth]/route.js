@@ -52,6 +52,7 @@ export const authOptions = {
                }
             });
 
+            user.avatar = user.avatar?.body;
             user.halls = division.halls;
 
             return user;
@@ -68,6 +69,7 @@ export const authOptions = {
             token.division_name = user.division?.name
             token.roles = user.roles;
             token.halls = user.halls;
+            token.avatar = user.attachment_id;
          }
          return token;
       },
@@ -77,6 +79,7 @@ export const authOptions = {
             session.user.division_name = token.division_name;
             session.user.roles = token.roles;
             session.user.halls = token.halls;
+            session.user.avatar = token.avatar;
          }
          return session;
       }

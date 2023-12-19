@@ -297,7 +297,7 @@ const Users = () => {
                         }
                      </TabPanel>
                      <TabPanel header="Фото">
-                     <FileUpload ref={fileUploadRef} name="demo[]" url="/api/upload" accept="image/*" maxFileSize={1000000}
+                     <FileUpload ref={fileUploadRef} accept="image/*" maxFileSize={1000000}
                         headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={imageSrc === '' ? emptyTemplate : loadedTemplate}
                         chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} onSelect={(e) => setAttachChanged(true) } onRemove={(e) => setAttachChanged(true) }/>
                      </TabPanel>

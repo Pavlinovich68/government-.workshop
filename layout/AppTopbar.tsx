@@ -1,19 +1,46 @@
 /* eslint-disable @next/next/no-img-element */
-
+'use client'
 import Link from 'next/link';
 import { classNames } from 'primereact/utils';
-import React, { forwardRef, useContext, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useContext, useImperativeHandle, useRef, useState, useEffect } from 'react';
 import { AppTopbarRef } from '../types/types';
 import { LayoutContext } from './context/layoutcontext';
 import Image from "next/image";
 import {signOut} from "next-auth/react";
 import { SplitButton } from 'primereact/splitbutton';
+import {useSession} from "next-auth/react";
+import { Avatar } from 'primereact/avatar';
+
+
+const getAvatar = async (id: number) => {
+   const res = await fetch(`/api/attachment/read?id=${id}`, {
+      method: "GET",
+      headers: {
+         "Content-Type": "application/json",
+      }
+   });
+   const data = await res.json();
+   if (data.status === 'success') {
+      return await data.data.body;
+   }
+}
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
+   const {data: session, status, update} = useSession();
    const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
    const menubuttonRef = useRef(null);
    const topbarmenuRef = useRef(null);
    const topbarmenubuttonRef = useRef(null);
+   const [avatar, setAvatar] = useState('');
+
+   console.log(session?.user);
+   //@ts-ignore
+   if (session?.user?.avatar) {
+      //@ts-ignore
+      getAvatar(session.user?.avatar).then((i) => {
+         setAvatar(i);
+      });
+   }
 
    useImperativeHandle(ref, () => ({
       menubutton: menubuttonRef.current,
@@ -48,10 +75,8 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                   <span>Calendar</span>
                </button>
                <a></a>
-               {/* <button type="button" className="p-link layout-topbar-button">
-                  <i className="pi pi-user"></i>
-                  <span>Profile</span>
-               </button> */}
+               {avatar ? <Avatar image={avatar} size="large" shape="circle" className='itr-avatar'/> :
+               <Avatar icon="pi pi-user" size="large" shape="circle" className='itr-avatar'/>}
 
                <button type="button" className="p-link layout-topbar-button" onClick={() => {signOut({callbackUrl: "/login"})}}>
                   <i className="pi pi-sign-out"></i>
