@@ -116,7 +116,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                </div>
                <div className="flex flex-column">
                   <a className="flex align-items-center ml-2 mr-8">
-                     <span className="underline">Настройки</span>
+                     <span className="no-underline hover:underline">Настройки</span>
                   </a>
                </div>
             </div>
@@ -126,7 +126,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                </div>
                <div className="flex flex-column">
                   <a className="flex align-items-center ml-2 mr-8">
-                     <span className="underline">Руководство пользователя</span>
+                     <span className="no-underline hover:underline">Руководство пользователя</span>
                   </a>
                </div>
             </div>
