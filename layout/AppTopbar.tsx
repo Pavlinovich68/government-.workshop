@@ -9,8 +9,8 @@ import Image from "next/image";
 import {signOut} from "next-auth/react";
 import {useSession} from "next-auth/react";
 import { Avatar } from 'primereact/avatar';
-import {ICardRef} from '@/models/ICardRef';
-import ItrCard from "@/components/ItrCard";
+import { OverlayPanel } from 'primereact/overlaypanel';
+import { Button } from 'primereact/button';
 
 
 const getAvatar = async (id: number) => {
@@ -33,9 +33,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
    const topbarmenuRef = useRef(null);
    const topbarmenubuttonRef = useRef(null);
    const [avatar, setAvatar] = useState('');
-   const profileEditor = useRef<ICardRef>(null);
 
-   console.log(session?.user);
    //@ts-ignore
    if (session?.user?.avatar) {
       //@ts-ignore
@@ -63,6 +61,8 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
 
    }
 
+   const op = useRef(null);
+
    return (
       <div className="layout-topbar">
          <button  type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle} title='Menubar'>
@@ -89,22 +89,52 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                <i className="pi pi-bell"></i>
                <span>События</span>
             </button>
-            <a></a>
-            {avatar ? <Avatar image={avatar} size="large" shape="circle" className='itr-avatar' onClick={()=>{if (profileEditor.current) { profileEditor.current.visible(true); }}}/> :
-            <Avatar icon="pi pi-user" size="large" shape="circle" className='itr-avatar'/>}
-
-            <button type="button" className="p-link layout-topbar-button" onClick={() => {signOut({callbackUrl: "/login"})}}>
-               <i className="pi pi-sign-out"></i>
-               <span>Выход</span>
+            <button type="button" className="p-link layout-topbar-button" onClick={(e) => {
+               //@ts-ignore
+                  op.current.toggle(e);
+               }}>
+               {avatar ? <Avatar image={avatar} size="large" shape="circle" className='itr-avatar'/> :
+               <Avatar icon="pi pi-user" size="large" shape="circle" className='itr-avatar'/>}
             </button>
          </div>
-         <ItrCard
-            header="Профиль пользователя"
-            dialogStyle={{ width: '20vw' }}
-            save={saveProfile}
-            body={profileCard()}
-            ref={profileEditor}
-         />
+         <OverlayPanel ref={op} showCloseIcon dismissable={false} style={{width:"25rem"}}>
+            <div className='flex flex-row flex wrap'>
+               <div className="flex flex-column mr-2">
+                  {avatar ? <Avatar image={avatar} size="large" shape="circle" className='itr-avatar'/> :
+                  <Avatar icon="pi pi-user" size="large" shape="circle" className='itr-avatar'/>}
+               </div>
+               <div className="flex flex-column">
+                  <span className="font-bold">{session?.user.name}</span>
+                  <div className="flex align-items-center gap-2 text-xs">
+                     <span className="font-italic">{session?.user.email}</span>
+                  </div>
+               </div>
+            </div>
+            <div className='flex flex-row align-items-center wrap mt-3'>
+               <div className="flex flex-column mr-2 text-2xl">
+                  <i className='pi pi-sliders-v'></i>
+               </div>
+               <div className="flex flex-column">
+                  <a className="flex align-items-center ml-2 mr-8">
+                     <span className="underline">Настройки</span>
+                  </a>
+               </div>
+            </div>
+            <div className='flex flex-row align-items-center flex wrap mt-3'>
+               <div className="flex flex-column mr-2 text-2xl">
+                  <i className='pi pi-question-circle'></i>
+               </div>
+               <div className="flex flex-column">
+                  <a className="flex align-items-center ml-2 mr-8">
+                     <span className="underline">Руководство пользователя</span>
+                  </a>
+               </div>
+            </div>
+            <hr/>
+            <div className='justify-content-center flex flex-row wrap mt-3'>
+               <Button type="button" label="Выйти из системы" icon="pi pi-sign-out" outlined  onClick={() => {signOut({callbackUrl: "/login"})}}/>
+            </div>
+         </OverlayPanel>
       </div>
    );
 });

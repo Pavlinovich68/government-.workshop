@@ -20,7 +20,11 @@ const AppMenu = () => {
    }
 
    const reserveHoll = () => {
-      const items = session?.user?.halls?.map((i) => { return {label: i.short_name}})
+      const items = session?.user?.halls?.map((i) => { return {
+         label: i.short_name,
+         icon: 'pi pi-fw pi-calendar',
+         to: `/workplace/halls/${i.id}`
+      }})
       return items;
    }
 
