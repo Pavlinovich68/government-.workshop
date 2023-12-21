@@ -5,6 +5,8 @@ import {IEventCounter} from "../../models/IEventCounter";
 import {IDayLocked} from "../../models/IDayLocked";
 import {IDonutDataset} from "../../models/IDonutDataset";
 import { classNames } from "primereact/utils";
+import ItrDonut from "./donut";
+import ItrEventsList from "./event-list";
 
 const ItrCalendar = ({hall, year, month} : any) => {
    const [items, setItems] = useState<ICalendarItem[]>();
@@ -128,7 +130,8 @@ const ItrCalendar = ({hall, year, month} : any) => {
                               data-month={item.month}
                               data-day={item.day}
                               className={classNames(styles.calendarCell,
-                                 {'day-outside text-gray-600': item.isOutside},
+                                 item.isOutside ? styles.dayOutside : '',
+                                 {'dayOutside text-gray-600': item.isOutside},
                                  {'text-red-400': item.isWeekend && !item.isOutside},
                                  {'text-red-800': item.isWeekend && item.isOutside},
                                  {'text-gray-700': item.isPast || item.locked},
@@ -140,13 +143,13 @@ const ItrCalendar = ({hall, year, month} : any) => {
                               }
                            }}
                         >
-                        <div className="day-cell">{item.day}</div>
-                        {/* {!item.isOutside ?
+                        <div className={classNames(styles.dayCell)}>{item.day}</div>
+                        {!item.isOutside ?
                            <div>
                               <ItrDonut data={donut.find((i) => i.day === item.day)?.data} year={year} month={month as number-1} day={item.day}/>
                               <ItrEventsList id={item.id} count={item.count} />
                            </div>:''
-                        } */}
+                        }
                         </div>
                   })}
                </div>

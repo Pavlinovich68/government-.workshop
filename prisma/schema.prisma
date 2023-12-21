@@ -64,6 +64,8 @@ model users {
    emailVerified DateTime?
    accounts      Account[]
    sessions      Session[]
+   event        event[]
+   locked       locked[]
 }
 
 model attachment {
@@ -85,4 +87,37 @@ model hall {
    //Вместимость
    capacity   Int        @db.Integer
    divisions   division[]
+   events      event[]
+   locked      locked[]
+}
+
+
+
+// Мероприятие
+model event {
+   id       Int     @id @default(autoincrement())
+   name     String? @db.VarChar(200)
+   year     Int     @default(2023)
+   month    Int     @default(7)
+   day      Int     @default(23)
+  // Точка начала в минутах от 00:00
+   start    Int
+  // Продолжительность в минутах
+   period   Int
+   hall_id  Int
+   hall     hall    @relation(fields: [hall_id], references: [id])
+   owner_id Int
+   owner    users   @relation(fields: [owner_id], references: [id])
+   color    String  @db.VarChar(6)
+}
+
+model locked {
+   id         Int      @id @default(autoincrement())
+   note       String   @db.VarChar(200)
+   begin_date DateTime @db.Timestamp(6)
+   end_date   DateTime @db.Timestamp(6)
+   hall_id    Int
+   hall       hall     @relation(fields: [hall_id], references: [id])
+   owner_id   Int
+   owner      users    @relation(fields: [owner_id], references: [id])
 }
