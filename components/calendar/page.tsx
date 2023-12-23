@@ -14,61 +14,64 @@ const ItrCalendar = ({hall, year, month} : any) => {
    const [donut, setDonut] = useState<IDonutDataset[]>([])
 
    const eventCouner = async () =>{
-      const fetch = async (): Promise<IEventCounter[]> => {
-         const _year = year??0;
-         const _month = month??-1;
-         try {
-            //const { data, status } = await EventService.counter(hall, _year, _month -1);
-            //return data;
-            return [];
-         } catch (e: any){
-            console.log(e);
-            return [];
-         }
-      }
-      return year === undefined || month === undefined ? [] : await fetch();
+      const model = {
+         hall_id: hall?.id??-1,
+         year: year??2000,
+         month: month??1
+      };
+      const result = await fetch('/api/event/counter', {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(model),
+      })
+
+      return await result.json();
    }
 
    const daysLocked = async () => {
-      const fetch = async (): Promise<IDayLocked[]> => {
-         const _year = year??0;
-         const _month = month??-1;
-         try {
-            //const { data, status } = await LockedService.locked_days({hall_id: hall, year: year, month: month});
-            //return data;
-            return [];
-         } catch (e: any){
-            console.log(e);
-            return [];
-         }
-      }
-      return year === undefined || month === undefined ? [] : await fetch();
+      const model = {
+         hall_id: hall?.id??-1,
+         year: year??2000,
+         month: month??1
+      };
+      const result = await fetch('/api/locked/days', {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(model),
+      })
+
+      return await result.json();
    }
 
    const getDonuts = async () => {
-      const fetch = async (): Promise<IDonutDataset[]> => {
-         const _year = year??0;
-         const _month = month??-1;
-         try {
-            //const { data, status } = await EventService.donuts(hall, year as number, month as number -1);
-            //return data;
-            return [];
-         } catch (e: any){
-            console.log(e);
-            return [];
-         }
-      }
-      return year === undefined || month === undefined ? [] : await fetch();
+      const model = {
+         hall_id: hall?.id??-1,
+         year: year??2000,
+         month: month??1
+      };
+      const result = await fetch('/api/event/donuts', {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(model),
+      })
+
+      return await result.json();
    }
 
    useEffect(() => {
       eventCouner().then((data) => {
          daysLocked().then((days)=>{
-            const dates = days.filter((i) => i.is_locked).map((i) => {return new Date(year as number, month as number -1, i.day)});
+            const dates = days.data.filter((i) => i.is_locked).map((i) => {return new Date(year as number, month as number -1, i.day)});
             setDisableDates(dates);
-            setItems(prepareDates(data, days));
+            setItems(prepareDates(data.data, days.data));
             getDonuts().then((dnt) => {
-                  setDonut(dnt);
+                  setDonut(dnt.data);
             })
          })
       });

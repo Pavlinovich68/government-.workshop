@@ -1,5 +1,7 @@
 import {Chart} from "primereact/chart";
+import { classNames } from "primereact/utils";
 import {useEffect, useState} from "react";
+import styles from "./styles.module.scss";
 
 const ItrDonut = ({data, year, month, day}: any) => {
    const [chartData, setChartData] = useState({});
@@ -16,7 +18,7 @@ const ItrDonut = ({data, year, month, day}: any) => {
    }, [data, year, month, day]);
 
    return (
-      <Chart data-year={year} data-month={month} data-day={day} type="doughnut" className={"events-donut"} data={chartData} options={chartOptions} style={{width: "60px"}} />
+      <Chart data-year={year} data-month={month} data-day={day} type="doughnut" className={classNames(styles.eventsDonut)} data={chartData} options={chartOptions} style={{width: "60px"}} />
    );
 }
 
