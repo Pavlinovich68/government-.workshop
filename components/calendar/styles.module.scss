@@ -12,6 +12,7 @@
       .calendarCell {
          border: 1px solid #3f4b5b;
          position: relative;
+         height: 80px;
 
          .eventsButton {
             position: absolute;
@@ -51,6 +52,7 @@
 
       .weekDay {
          text-align: center;
+         height: 25px;
       }
    }
 }

@@ -17,7 +17,8 @@ export const authOptions = {
             username: { label: "Username", type: "text", placeholder: "Имя пользователя"},
             password: { label: "Password", type: "password" },
             email: {label: "Email", type: "email" },
-            roles: {label: "Roles", type: "json"}
+            roles: {label: "Roles", type: "json"},
+            id: {label: "UserId", type: "id"}
          },
          async authorize(credentials) {
             if(!credentials.email || !credentials.password) {
@@ -70,6 +71,7 @@ export const authOptions = {
             token.roles = user.roles;
             token.halls = user.halls;
             token.avatar = user.attachment_id;
+            token.user_id = user.id;
          }
          return token;
       },
@@ -80,6 +82,7 @@ export const authOptions = {
             session.user.roles = token.roles;
             session.user.halls = token.halls;
             session.user.avatar = token.avatar;
+            session.user.id = token.user_id;
          }
          return session;
       }

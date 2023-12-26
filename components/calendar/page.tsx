@@ -1,17 +1,39 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import styles from "./styles.module.scss";
-import {ICalendarItem} from "../../models/ICalendarItem";
-import {IEventCounter} from "../../models/IEventCounter";
-import {IDayLocked} from "../../models/IDayLocked";
-import {IDonutDataset} from "../../models/IDonutDataset";
+import {ICalendarItem} from "@/models/ICalendarItem";
+import {IEventCounter} from "@/models/IEventCounter";
+import {IDayLocked} from "@/models/IDayLocked";
+import {IDonutDataset} from "@/models/IDonutDataset";
 import { classNames } from "primereact/utils";
 import ItrDonut from "./donut";
 import ItrEventsList from "./event-list";
+import ItrCard from "@/components/ItrCard";
+import {TabPanel, TabView, TabViewTabChangeEvent} from "primereact/tabview";
+import {Slider} from "primereact/slider";
+import {InputText} from "primereact/inputtext";
+import {useFormik} from "formik";
+import { IEvent } from "@/models/IEvent";
+import {useSession} from "next-auth/react";
+import {Calendar} from "primereact/calendar";
+import ItrTimeline from "@/components/ItrTimeline";
+import { ICardRef } from "@/models/ICardRef";
+import {ConfirmDialog} from "primereact/confirmdialog";
 
 const ItrCalendar = ({hall, year, month} : any) => {
+   const {data: session, status, update} = useSession();
+   //@ts-ignore
+   const emptyEvent: IEvent = {name: '', begin_date: new Date(), year: 0, month: 0, day: 0, value: [510, 1050], hall_id: 0, owner_id: session?.user?.id as number};
    const [items, setItems] = useState<ICalendarItem[]>();
    const [disableDates, setDisableDates] = useState<Date[]>([]);
-   const [donut, setDonut] = useState<IDonutDataset[]>([])
+   const [donut, setDonut] = useState<IDonutDataset[]>([]);
+   const [cardHeader, setCardHeader] = useState('');
+   const [submitted, setSubmitted] = useState(false);
+   const [monthName, setMonthName] = useState<string>();
+   const [dayEvents, setDayEvents] = useState<string[]>();
+   const [interval, setInterval] = useState<string>('');
+   const colors = useRef(null);
+   const editor = useRef<ICardRef>(null);
+
 
    const eventCouner = async () =>{
       const model = {
@@ -67,7 +89,7 @@ const ItrCalendar = ({hall, year, month} : any) => {
    useEffect(() => {
       eventCouner().then((data) => {
          daysLocked().then((days)=>{
-            const dates = days.data.filter((i) => i.is_locked).map((i) => {return new Date(year as number, month as number -1, i.day)});
+            const dates = days.data.filter((i: any) => i.is_locked).map((i: any) => {return new Date(year as number, month as number -1, i.day)});
             setDisableDates(dates);
             setItems(prepareDates(data.data, days.data));
             getDonuts().then((dnt) => {
@@ -115,6 +137,101 @@ const ItrCalendar = ({hall, year, month} : any) => {
       return result;
    }
 
+   const getDayEvents = async (day: number) => {
+   }
+
+//#region Card
+   const event = useFormik<IEvent>({
+      initialValues: emptyEvent,
+      validate: (data) => {
+         let errors = {};
+         if (!data.name){
+            // @ts-ignore
+            errors.short_name = "Описание мероприятия обязательно должно быть указано!"
+         }
+         return errors;
+      },
+      onSubmit: () => {
+         event.resetForm();
+      }
+   });
+
+   const createEvent = (day: any) => {
+      console.log(day);
+   }
+
+   const saveEvent= async () => {
+   }
+
+   const timeInterval = (value: [number, number]) => {
+      let startHours = Math.floor(value[0] / 60);
+      let startMinutes = value[0] - startHours * 60;
+      let finishHours = Math.floor(value[1] / 60);
+      let finishMinutes = value[1] - finishHours * 60;
+      let result = `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')} - ${finishHours.toString().padStart(2, '0')}:${finishMinutes.toString().padStart(2, '0')}`;
+      setInterval(result);
+   }
+
+   const card = () => {
+      // @ts-ignore
+      return (
+         <form onSubmit={saveEvent}>
+            <TabView>
+               <TabPanel header="Основные данные">
+                     <div className="grid p-fluid">
+                        <div className="col-12">
+                           <div className="grid formgrid">
+                                 <div className="field col-12 mb-2">
+                                    <label htmlFor="building">Наименование мероприятия</label>
+                                    <InputText id="name" placeholder="Наименование мероприятия"
+                                                className={classNames({"p-invalid": submitted && !event.values.name})}
+                                                value={event.values.name}
+                                                onChange={(e) => event.setFieldValue('name', e.target.value)} required autoFocus type="text"/>
+                                 </div>
+                           </div>
+                           <div className="grid formgrid">
+                                 <div className="field col-5 mb-2">
+                                    <label htmlFor="begin_date">Дата проведения мероприятия</label>
+                                    <label className="calendar-label">{monthName}</label>
+                                    <Calendar
+                                       id="begin_date"
+                                       className={classNames("itr-card-calendar p-calendar-sm", {"p-invalid": submitted && !event.values.begin_date})}
+                                       value={event.values.begin_date}
+                                       onChange={(e) => {
+                                                const day = (e.target.value as Date).getDate();
+                                                event.setFieldValue('begin_date', new Date((e.target.value as Date).toDateString()));
+                                                getDayEvents(day).then((data) => {
+                                                   //@ts-ignore
+                                                   colors.current = data;
+                                                   //@ts-ignore
+                                                   setDayEvents(data);
+                                                });
+                                             }
+                                       }
+                                       disabledDates={disableDates}
+                                       dateFormat="dd MM yy"
+                                       locale="ru"
+                                       required inline/>
+                                 </div>
+                                 <div className="field col-7 mb-2">
+                                    <label htmlFor="first_name" className="block">Временной интервал</label>
+                                    <label className="block interval-text">{interval}</label>
+                                    <Slider className="block" value={event.values.value} onChange={(e) => {
+                                       event.setFieldValue('value', e.value);
+                                       timeInterval(e.value as [number, number]);
+                                    }} range min={0} max={1440} step={5}/>
+                                    <ItrTimeline items={dayEvents} ref={colors}/>
+                                 </div>
+                           </div>
+                        </div>
+                     </div>
+               </TabPanel>
+            </TabView>
+         </form>
+   );
+}
+//#endregion
+
    return (
       <div className={classNames(styles.itrCalendar, 'grid mt-2')}>
          <div className="col-2"></div>
@@ -142,7 +259,7 @@ const ItrCalendar = ({hall, year, month} : any) => {
                               )}
                               onDoubleClick={() => {
                               if (!item.isOutside && !item.isPast && !item.locked) {
-                                    //createEvent(item.day);
+                                    createEvent(item);
                               }
                            }}
                         >
@@ -158,6 +275,14 @@ const ItrCalendar = ({hall, year, month} : any) => {
                </div>
             </div>
          <div className="col-2"></div>
+         <ItrCard
+            header={cardHeader}
+            dialogStyle={{ width: '56vw' }}
+            save={saveEvent}
+            body={card()}
+            ref={editor}
+         />
+         <ConfirmDialog />
       </div>
    );
 }
