@@ -36,54 +36,66 @@ const ItrCalendar = ({hall, year, month} : any) => {
 
 
    const eventCouner = async () =>{
-      const model = {
-         hall_id: hall?.id??-1,
-         year: year??2000,
-         month: month??1
-      };
-      const result = await fetch('/api/event/counter', {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify(model),
-      })
+      if (hall) {
+         const model = {
+            hall_id: hall?.id??-1,
+            year: year??2000,
+            month: month??1
+         };
+         const result = await fetch('/api/event/counter', {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify(model),
+         })
 
-      return await result.json();
+         return await result.json();
+      } else {
+         return {data: []};
+      }
    }
 
    const daysLocked = async () => {
-      const model = {
-         hall_id: hall?.id??-1,
-         year: year??2000,
-         month: month??1
-      };
-      const result = await fetch('/api/locked/days', {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify(model),
-      })
+      if (hall) {
+         const model = {
+            hall_id: hall?.id??-1,
+            year: year??2000,
+            month: month??1
+         };
+         const result = await fetch('/api/locked/days', {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify(model),
+         })
 
-      return await result.json();
+         return await result.json();
+      } else {
+         return {data: []};
+      }
    }
 
    const getDonuts = async () => {
-      const model = {
-         hall_id: hall?.id??-1,
-         year: year??2000,
-         month: month??1
-      };
-      const result = await fetch('/api/event/donuts', {
-         method: "POST",
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify(model),
-      })
+      if (hall) {
+         const model = {
+            hall_id: hall?.id??-1,
+            year: year??2000,
+            month: month??1
+         };
+         const result = await fetch('/api/event/donuts', {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify(model),
+         })
 
-      return await result.json();
+         return await result.json();
+      } else {
+         return {data: []};
+      }
    }
 
    useEffect(() => {

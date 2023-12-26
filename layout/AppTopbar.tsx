@@ -35,7 +35,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
    const [avatar, setAvatar] = useState('');
 
    //@ts-ignore
-   if (session?.user?.avatar) {
+   if (session?.user?.avatar && avatar === '') {
       //@ts-ignore
       getAvatar(session.user?.avatar).then((i) => {
          setAvatar(i);
