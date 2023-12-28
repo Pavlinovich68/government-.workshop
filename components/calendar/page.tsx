@@ -179,13 +179,23 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       }
    });
 
-   const createEventItem = (day: any) => {
-      console.log(day);
+   const createEventItem = (item: ICalendarItem) => {
+      console.log(item);
+      emptyEvent.year = item.year??new Date().getFullYear();
+      emptyEvent.month = item.month??new Date().getMonth();
+      emptyEvent.day = item.day;
+      emptyEvent.begin_date = new Date(emptyEvent.year, emptyEvent.month, emptyEvent.day);
+      emptyEvent.name = '';
+      emptyEvent.hall_id = hall?.id;
+      //@ts-ignore
+      emptyEvent.owner_id = session?.user.id;
+      timeInterval(emptyEvent.value);
+      event.setValues(emptyEvent);
       setCardHeader('Создание нового мероприятия');
-      // setSubmitted(false);
-      // if (editor.current) {
-      //    editor.current.visible(true);
-      // }
+      setSubmitted(false);
+      if (editor.current) {
+         editor.current.visible(true);
+      }
    }
 
    const saveEvent= async () => {
@@ -248,7 +258,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                                        event.setFieldValue('value', e.value);
                                        timeInterval(e.value as [number, number]);
                                     }} range min={0} max={1440} step={5}/>
-                                    <ItrTimeline items={dayEvents} ref={colors}/>
+                                    {/* <ItrTimeline items={dayEvents} ref={colors}/> */}
                                  </div>
                            </div>
                         </div>
