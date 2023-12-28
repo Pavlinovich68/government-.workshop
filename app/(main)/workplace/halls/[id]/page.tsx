@@ -5,6 +5,8 @@ import {useSession} from "next-auth/react";
 import { Toolbar } from 'primereact/toolbar';
 import {Button} from "primereact/button";
 import ItrCalendar from "@/components/calendar/page";
+import { ICalendarRef } from "@/models/ICalendarRef";
+import { Toast } from "primereact/toast";
 
 const addMonths = (date: Date, months: number) => {
    let result = new Date(date);
@@ -31,6 +33,8 @@ const HallPage = ({ params }: { params: { id: number }}) => {
    const [year, setYear] = useState<number>();
    const [month, setMonth] = useState<number>();
    const [monthName, setMonthName] = useState<string>();
+   const calendar = useRef<ICalendarRef>(null);
+   const toast = useRef<Toast>(null);
 
    useEffect(() => {
       //@ts-ignore
@@ -58,6 +62,31 @@ const HallPage = ({ params }: { params: { id: number }}) => {
          />
          <Button icon="pi pi-plus" severity="success" rounded
                   tooltip="Добавить мероприятие" tooltipOptions={{ position: 'top' }}
+                  onClick={(e) => {
+                     if (calendar.current && calendar.current.days !== undefined) {
+                        const allItems = calendar.current.days();
+                        const available = allItems?.filter(i => !i.isOutside && !i.isPast && !i.locked);
+                        let first = available?.reduce((min, current) => current.day < min.day ? current : min, available[0]);
+                        if (first) {
+                           calendar.current.createEvent(first);
+                        } else {
+                           //@ts-ignore
+                           toast.current.show({
+                              severity:'warn',
+                              summary: 'Выберите другой месяц',
+                              content: (<div className="flex flex-column">
+                                          <div className="text-center mb-2">
+                                             <i className="pi pi-exclamation-triangle" style={{ fontSize: '3rem' }}></i>
+                                             <p className="flex align-items-left m-0">
+                                                В текущем месяце нет доступных для бронирования дат!
+                                             </p>
+                                          </div>
+                              </div>),
+                              life: 5000
+                           });
+                        }
+                     }
+                  }}
          />
       </React.Fragment>
    );
@@ -90,9 +119,10 @@ const HallPage = ({ params }: { params: { id: number }}) => {
                <h3 className="mb-0">{hall?.name}</h3>
                <div className="mb-3 font-italic">{hall?.address}</div>
                <Toolbar start={startContent} center={centerContent} end={endContent}/>
-               <ItrCalendar hall={hall} year={year} month={month}/>
+               <ItrCalendar hall={hall} year={year} month={month} ref={calendar}/>
             </div>
          </div>
+         <Toast ref={toast}/>
       </div>
    );
 };

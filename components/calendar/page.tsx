@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {forwardRef, Ref, useState, useEffect, useRef, useImperativeHandle} from "react";
 import styles from "./styles.module.scss";
 import {ICalendarItem} from "@/models/ICalendarItem";
 import {IEventCounter} from "@/models/IEventCounter";
@@ -18,8 +18,9 @@ import {Calendar} from "primereact/calendar";
 import ItrTimeline from "@/components/ItrTimeline";
 import { ICardRef } from "@/models/ICardRef";
 import {ConfirmDialog} from "primereact/confirmdialog";
+import { ICalendarRef } from "@/models/ICalendarRef";
 
-const ItrCalendar = ({hall, year, month} : any) => {
+const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const {data: session, status, update} = useSession();
    //@ts-ignore
    const emptyEvent: IEvent = {name: '', begin_date: new Date(), year: 0, month: 0, day: 0, value: [510, 1050], hall_id: 0, owner_id: session?.user?.id as number};
@@ -34,6 +35,16 @@ const ItrCalendar = ({hall, year, month} : any) => {
    const colors = useRef(null);
    const editor = useRef<ICardRef>(null);
 
+
+   const createEvent = (item: ICalendarItem) => {
+      createEventItem(item);
+   };
+
+   const days = () => {
+      return items;
+   };
+
+   useImperativeHandle(ref, () => ({createEvent, days}));
 
    const eventCouner = async () =>{
       if (hall) {
@@ -168,8 +179,13 @@ const ItrCalendar = ({hall, year, month} : any) => {
       }
    });
 
-   const createEvent = (day: any) => {
+   const createEventItem = (day: any) => {
       console.log(day);
+      setCardHeader('Создание нового мероприятия');
+      // setSubmitted(false);
+      // if (editor.current) {
+      //    editor.current.visible(true);
+      // }
    }
 
    const saveEvent= async () => {
@@ -244,6 +260,10 @@ const ItrCalendar = ({hall, year, month} : any) => {
 }
 //#endregion
 
+//#region CRUD
+
+//#endregion
+
    return (
       <div className={classNames(styles.itrCalendar, 'grid mt-2')}>
          <div className="col-2"></div>
@@ -271,7 +291,7 @@ const ItrCalendar = ({hall, year, month} : any) => {
                               )}
                               onDoubleClick={() => {
                               if (!item.isOutside && !item.isPast && !item.locked) {
-                                    createEvent(item);
+                                    createEventItem(item);
                               }
                            }}
                         >
@@ -299,4 +319,4 @@ const ItrCalendar = ({hall, year, month} : any) => {
    );
 }
 
-export default ItrCalendar;
+export default forwardRef(ItrCalendar);

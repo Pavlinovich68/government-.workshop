@@ -1,7 +1,7 @@
 export interface    ICalendarItem {
    id: string,
-   year: number,
-   month: number,
+   year: number | undefined,
+   month: number | undefined,
    day: number,
    isWeekend: boolean,
    isOutside: boolean,
