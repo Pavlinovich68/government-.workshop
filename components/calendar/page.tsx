@@ -19,9 +19,15 @@ import ItrTimeline from "@/components/calendar/ItrTimeline";
 import { ICardRef } from "@/models/ICardRef";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import { ICalendarRef } from "@/models/ICalendarRef";
+import RecordState from "@/models/enums/record-state";
+import CrudHelper from "@/services/crud.helper.js"
+import CRUD from "@/models/enums/crud-type";
+import {Toast} from "primereact/toast";
 
 const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
+   const controllerName = "event";
    const {data: session, status, update} = useSession();
+   const toast = useRef<Toast>(null);
    //@ts-ignore
    const emptyEvent: IEvent = {name: '', begin_date: new Date(), year: 0, month: 0, day: 0, value: [510, 1050], hall_id: 0, owner_id: session?.user?.id as number};
    const [items, setItems] = useState<ICalendarItem[]>();
@@ -34,6 +40,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const [interval, setInterval] = useState<string>('');
    const colors = useRef(null);
    const editor = useRef<ICardRef>(null);
+   const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
 
 
    const createEvent = (item: ICalendarItem) => {
@@ -195,7 +202,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    });
 
    const createEventItem = async (item: ICalendarItem) => {
-      console.log(item);
+      setRecordState(RecordState.new);
       emptyEvent.year = item.year??new Date().getFullYear();
       emptyEvent.month = item.month??new Date().getMonth();
       emptyEvent.day = item.day;
@@ -215,7 +222,95 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       }
    }
 
+   const checkTime = () => {
+      const start = event.values.value[0] / 5;
+      const length = (event.values.value[1] / 5) - start;
+      const newArr = Array.from(Array(length).keys()).map((i) => i+start);
+      const existsArr = dayEvents?.map((i, index) => i === '#969A9FFF' ? -1 : index).filter((i) => i >= 0);
+      const result = newArr.filter((i) => existsArr?.includes(i));
+      return result.length === 0;
+   }
+
    const saveEvent= async () => {
+      if (!checkTime()) {
+         // @ts-ignore
+         toast.current.show({
+            severity:'error',
+            summary: 'Пересечение по времени',
+            content: (<div className="flex flex-column">
+               <div className="text-center mb-2">
+                  <i className="pi pi-exclamation-triangle" style={{ fontSize: '3rem' }}></i>
+                  <h5 className="text-red-500">Заданный интервал пересекается с уже существующими мероприятиями!</h5>
+               </div>
+            </div>),
+            life: 5000
+         });
+         return;
+      }
+
+      setSubmitted(true);
+      if (!event.isValid) {
+         const errors = Object.values(event.errors);
+         // @ts-ignore
+         toast.current.show({
+            severity:'error',
+            summary: 'Ошибка сохранения',
+            content: (<div className="flex flex-column">
+               <div className="text-center mb-2">
+                  <i className="pi pi-exclamation-triangle" style={{ fontSize: '3rem' }}></i>
+                  <h3 className="text-red-500">Ошибка сохранения</h3>
+               </div>
+               {errors.map((item) => {
+                  return (
+                        // eslint-disable-next-line react/jsx-key
+                        <p className="flex align-items-left m-0">
+                           {/* @ts-ignore */}
+                           {item}
+                        </p>)
+               })
+               }
+            </div>),
+            life: 5000
+         });
+         return;
+      }
+
+      try {
+         const res = recordState === RecordState.new ?
+            await CrudHelper.crud(controllerName, CRUD.create, {
+               name: event.values.name,
+               year: event.values.year,
+               month: event.values.month,
+               day: event.values.day,
+               value: [event.values.value[0], event.values.value[1]],
+               hall_id: event.values.hall_id,
+               owner_id: event.values.owner_id
+            }) :
+            await CrudHelper.crud(controllerName, CRUD.update, {
+               id: event.values.id,
+               name: event.values.name,
+               year: event.values.year,
+               month: event.values.month,
+               day: event.values.day,
+               value: [event.values.value[0], event.values.value[1]],
+               hall_id: event.values.hall_id,
+               owner_id: event.values.owner_id
+            });
+
+         if (res.status === 'error'){
+            //@ts-ignore
+            toast.current?.show({severity:'error', summary: 'Ошибка сохранения', detail: res.data, sticky: true});
+            //setIsLoading(false);
+         } else {
+            if (editor.current) {
+               editor.current.visible(false);
+            }
+         }
+      } catch (e: any) {
+         // @ts-ignore
+         toast.current.show({severity:'error', summary: 'Ошибка сохранения', detail: e.message, life: 3000});
+         throw e;
+      }
    }
 
    const timeInterval = (value: [number, number]) => {
@@ -343,6 +438,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
             ref={editor}
          />
          <ConfirmDialog />
+         <Toast ref={toast} />
       </div>
    );
 }
