@@ -42,6 +42,7 @@ model division {
    short_name String?    @db.VarChar(50)
    contacts   String?    @db.VarChar(300)
    parent_id  Int?
+   color      String     @db.VarChar(9) @default("#82A8CDFF")
    parent     division?  @relation("divisionTodivision", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
    childrens  division[] @relation("divisionTodivision")
    users      users[]

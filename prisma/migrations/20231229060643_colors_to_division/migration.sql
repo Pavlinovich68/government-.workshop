@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "division" ADD COLUMN     "color" VARCHAR(9) NOT NULL DEFAULT '#82A8CDFF';

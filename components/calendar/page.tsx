@@ -15,7 +15,7 @@ import {useFormik} from "formik";
 import { IEvent } from "@/models/IEvent";
 import {useSession} from "next-auth/react";
 import {Calendar} from "primereact/calendar";
-import ItrTimeline from "@/components/ItrTimeline";
+import ItrTimeline from "@/components/calendar/ItrTimeline";
 import { ICardRef } from "@/models/ICardRef";
 import {ConfirmDialog} from "primereact/confirmdialog";
 import { ICalendarRef } from "@/models/ICalendarRef";
@@ -161,6 +161,21 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    }
 
    const getDayEvents = async (day: number) => {
+      const model = {
+         hall_id: hall.id,
+         year: year,
+         month: month,
+         day: day
+      }
+      const data = await fetch('/api/event/colors', {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(model),
+      })
+
+      return await data.json();
    }
 
 //#region Card
@@ -179,7 +194,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       }
    });
 
-   const createEventItem = (item: ICalendarItem) => {
+   const createEventItem = async (item: ICalendarItem) => {
       console.log(item);
       emptyEvent.year = item.year??new Date().getFullYear();
       emptyEvent.month = item.month??new Date().getMonth();
@@ -193,6 +208,8 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       event.setValues(emptyEvent);
       setCardHeader('Создание нового мероприятия');
       setSubmitted(false);
+      const de = await getDayEvents(item.day);
+      setDayEvents(de.data);
       if (editor.current) {
          editor.current.visible(true);
       }
@@ -239,6 +256,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                                                 const day = (e.target.value as Date).getDate();
                                                 event.setFieldValue('begin_date', new Date((e.target.value as Date).toDateString()));
                                                 getDayEvents(day).then((data) => {
+                                                   debugger;
                                                    //@ts-ignore
                                                    colors.current = data;
                                                    //@ts-ignore
@@ -258,7 +276,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                                        event.setFieldValue('value', e.value);
                                        timeInterval(e.value as [number, number]);
                                     }} range min={0} max={1440} step={5}/>
-                                    {/* <ItrTimeline items={dayEvents} ref={colors}/> */}
+                                    <ItrTimeline items={dayEvents} ref={colors}/>
                                  </div>
                            </div>
                         </div>
