@@ -407,7 +407,6 @@ const Users = () => {
    }
 
    const saveUser = async () => {
-      debugger;
       setSubmitted(true);
       if (!user.isValid) {
          const errors = Object.values(user.errors);

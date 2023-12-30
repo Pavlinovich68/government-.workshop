@@ -26,7 +26,7 @@ export const POST = async (request) => {
          return {
             start: item.start / 5,
             length: item.period / 5,
-            color: item.color,
+            color: item.owner.division.color,
          };
       });
       arr.forEach((item) => {
@@ -39,7 +39,7 @@ export const POST = async (request) => {
       const result = [];
       Array.from(Array(288).keys()).map((i) =>
          fullArray.map((y) => y.index).includes(i)
-            ? (result[i] = `#${fullArray.find((z) => z.index === i).color}`)
+            ? (result[i] = `${fullArray.find((z) => z.index === i).color}`)
             : (result[i] = '#969A9F')
       );
 
@@ -64,6 +64,17 @@ export const POST = async (request) => {
             hall_id: model.hall_id,
             year: model.year,
             month: model.month
+         },
+         include: {
+            owner: {
+               include: {
+                  division: {
+                     select: {
+                        color: true,
+                     }
+                  }
+               }
+            }
          }
       });
 

@@ -9,7 +9,7 @@ export const POST = async (request) => {
          data: {
             name: model.name,
             year: model.year,
-            month: model.month,
+            month: model.month+1,
             day: model.day,
             start: model.value[0],
             period: model.value[1],
@@ -30,7 +30,7 @@ export const POST = async (request) => {
          data: {
             name: model.name,
             year: model.year,
-            month: model.month,
+            month: model.month+1,
             day: model.day,
             start: model.value[0],
             period: model.value[1],

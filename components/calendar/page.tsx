@@ -282,7 +282,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                year: event.values.year,
                month: event.values.month,
                day: event.values.day,
-               value: [event.values.value[0], event.values.value[1]],
+               value: [event.values.value[0], event.values.value[1]-event.values.value[0]],
                hall_id: event.values.hall_id,
                owner_id: event.values.owner_id
             }) :
@@ -351,7 +351,6 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                                                 const day = (e.target.value as Date).getDate();
                                                 event.setFieldValue('begin_date', new Date((e.target.value as Date).toDateString()));
                                                 getDayEvents(day).then((data) => {
-                                                   debugger;
                                                    //@ts-ignore
                                                    colors.current = data;
                                                    //@ts-ignore

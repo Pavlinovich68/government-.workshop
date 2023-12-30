@@ -12,7 +12,6 @@ const ItrDonut = ({data, year, month, day}: any) => {
             cutout: '85%',
             borderWidth: ''
       };
-
       setChartData(data);
       setChartOptions(options);
    }, [data, year, month, day]);
