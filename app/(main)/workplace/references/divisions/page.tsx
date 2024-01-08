@@ -18,6 +18,7 @@ import CRUD from "@/models/enums/crud-type";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { PickList } from "primereact/picklist";
 import { Hall } from "@/models/Hall";
+import { FileUpload, FileUploadHeaderTemplateOptions, ItemTemplateOptions } from 'primereact/fileupload';
 
 const Divisions = () => {
    const controllerName = "division";
@@ -34,12 +35,39 @@ const Divisions = () => {
    const [deletedDivision, setDeletedDivision] = useState<Division>(emptyDivision);
    const [allHalls, setAllHalls] = useState([]);
    const [selectedHalls, setSelectedHalls] = useState([]);
+   const fileUploadRef = useRef<FileUpload>(null);
+   const chooseOptions = { icon: 'pi pi-fw pi-images', iconOnly: true, className: 'custom-choose-btn p-button-rounded p-button-outlined' };
+   const uploadOptions = { icon: 'pi pi-fw pi-cloud-upload', iconOnly: true, className: 'custom-upload-btn p-button-success p-button-rounded p-button-outlined' };
+   const cancelOptions = { icon: 'pi pi-fw pi-times', iconOnly: true, className: 'custom-cancel-btn p-button-danger p-button-rounded p-button-outlined' };
+   const [imageSrc, setImageSrc] = useState('');
+   const [attachChanged, setAttachChanged] = useState<boolean>(false);
+   const [attachmentId, setAttachmentId] = useState<number | undefined | null>(null);
 
    useEffect(() => {
       CrudHelper.crud(controllerName, CRUD.read, {}).then((result)=>{
          setDivisions(result.data);
       });
    }, []);
+
+   //#region Attachment
+   const readAttachment = async (id: number | undefined | null) => {
+      setImageSrc('');
+      setAttachmentId(id)
+      if (!id){
+         return;
+      }
+      const res = await fetch(`/api/attachment/read?id=${id}`, {
+         method: "GET",
+         headers: {
+            "Content-Type": "application/json",
+         }
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+         setImageSrc(data.data.body);
+      }
+   }
+   //#endregion
 
    //#region Card
    const division = useFormik<Division>({
@@ -58,6 +86,51 @@ const Divisions = () => {
          division.resetForm();
       }
    });
+
+   const headerTemplate = (options: FileUploadHeaderTemplateOptions) => {
+      const { className, chooseButton, cancelButton } = options;
+
+      return (
+         <div className={className} style={{ backgroundColor: 'transparent', display: 'flex', alignItems: 'center' }}>
+            {chooseButton}
+            {cancelButton}
+         </div>
+      );
+   };
+
+   const itemTemplate = (inFile: object, props: ItemTemplateOptions) => {
+      const file = inFile as File;
+      //@ts-ignore
+      const objectURL = file.objectURL;
+      return (
+         <div className="flex align-items-center flex-wrap">
+            <div className="flex align-items-center" style={{ width: '40%' }}>
+               <img alt={file.name} role="presentation" src={objectURL} width={100} />
+            </div>
+         </div>
+      );
+   };
+
+   const loadedTemplate = () => {
+      return (
+         <div className="flex align-items-center flex-wrap">
+            <div className="flex align-items-center" style={{ width: '40%' }}>
+               <img alt={"loadedFromDataBaseImage"} role="presentation" src={imageSrc} width={100} />
+            </div>
+         </div>
+      );
+   };
+
+   const emptyTemplate = () => {
+      return (
+         <div className="flex align-items-center flex-column">
+            <i className="pi pi-image mt-3 p-5" style={{ fontSize: '5em', borderRadius: '50%', backgroundColor: 'var(--surface-b)', color: 'var(--surface-d)' }}></i>
+            <span style={{ fontSize: '1.2em', color: 'var(--text-color-secondary)' }} className="my-5">
+               Перетащите сюда изображение
+            </span>
+         </div>
+      );
+   };
 
    const card = () => {
       return (
@@ -93,6 +166,11 @@ const Divisions = () => {
                         filterBy="short_name" breakpoint="800px" sourceHeader={"Все залы"} targetHeader={"Доступные"} sourceStyle={{height: "24rem"}}
                         targetStyle={{height: "24rem"}} sourceFilterPlaceholder="Поиск..." targetFilterPlaceholder="Поиск..."
                      />
+                  </TabPanel>
+                  <TabPanel header="Логотип">
+                  <FileUpload ref={fileUploadRef} accept="image/*" maxFileSize={1000000}
+                        headerTemplate={headerTemplate} itemTemplate={itemTemplate} emptyTemplate={imageSrc === '' ? emptyTemplate : loadedTemplate}
+                        chooseOptions={chooseOptions} uploadOptions={uploadOptions} cancelOptions={cancelOptions} onSelect={(e) => setAttachChanged(true) } onRemove={(e) => setAttachChanged(true) }/>
                   </TabPanel>
                </TabView>
             </div>
@@ -146,9 +224,10 @@ const Divisions = () => {
       }
    }
 
-   const editDivision = (data: Division) => {
+   const editDivision = async (data: Division) => {
       setCardHeader('Редактирование подразделения');
       division.setValues(data);
+      const attach = await readAttachment(data.attachment_id);
       //@ts-ignore
       setSelectedHalls(data.halls);
       hallList().then((result)=>{

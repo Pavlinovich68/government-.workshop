@@ -37,16 +37,18 @@ model Session {
 }
 
 model division {
-   id         Int        @id @default(autoincrement())
-   name       String?    @unique(map: "division_u_ind") @db.VarChar(200)
-   short_name String?    @db.VarChar(50)
-   contacts   String?    @db.VarChar(300)
-   parent_id  Int?
-   color      String     @db.VarChar(9) @default("#82A8CDFF")
-   parent     division?  @relation("divisionTodivision", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-   childrens  division[] @relation("divisionTodivision")
-   users      users[]
-   halls      hall[]
+   id            Int        @id @default(autoincrement())
+   name          String?    @unique(map: "division_u_ind") @db.VarChar(200)
+   short_name    String?    @db.VarChar(50)
+   contacts      String?    @db.VarChar(300)
+   parent_id     Int?
+   color         String     @db.VarChar(9) @default("#82A8CDFF")
+   parent        division?  @relation("divisionTodivision", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+   childrens     division[] @relation("divisionTodivision")
+   attachment_id Int?
+   logo          attachment? @relation(fields: [attachment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+   users         users[]
+   halls         hall[]
 }
 
 model users {
@@ -70,14 +72,15 @@ model users {
 }
 
 model attachment {
-   id       Int      @id @default(autoincrement())
-   filename String   @db.VarChar(100)
-   body     Bytes    @db.ByteA
-   type     String   @db.VarChar(50)
-   date     DateTime @db.Timestamp(6)
-   md5      String   @db.VarChar(32)
-   size     Int
-   users    users[]
+   id        Int      @id @default(autoincrement())
+   filename  String   @db.VarChar(100)
+   body      Bytes    @db.ByteA
+   type      String   @db.VarChar(50)
+   date      DateTime @db.Timestamp(6)
+   md5       String   @db.VarChar(32)
+   size      Int
+   users     users[]
+   divisions division[]
 }
 
 model hall {
