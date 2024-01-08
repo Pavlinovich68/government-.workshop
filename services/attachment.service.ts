@@ -21,7 +21,7 @@ class AttachService {
       return data.status === 'success' ? data.data.body : '';
    }
 
-   save = async(file: File, id: number) => {
+   save = async(file: File, id: number | undefined | null) => {
       const base64 = await this.toBase64(file);
       const model = {
          type: file.type,

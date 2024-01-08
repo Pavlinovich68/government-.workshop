@@ -23,6 +23,7 @@ export const POST = async (request) => {
                name: item.name,
                short_name: item.short_name,
                contacts: item.contacts,
+               attachment_id: item.attachment_id,
                halls: item.halls
             }
          }
@@ -42,6 +43,7 @@ export const POST = async (request) => {
             short_name: model.short_name,
             contacts: model.contacts,
             parent_id: model.parent_id,
+            attachment_id: model.attachment_id,
             halls: {
                connect: model.halls.map((i) => { return {id: i}})
             }
@@ -65,6 +67,7 @@ export const POST = async (request) => {
             name: model.name,
             short_name: model.short_name,
             contacts: model.contacts,
+            attachment_id: model.attachment_id,
             halls: {
                connect: model.halls.map((i) => { return {id: i}})
             }

@@ -14,6 +14,7 @@ import ItrCard from "@/components/ItrCard";
 import {classNames} from "primereact/utils";
 import { ConfirmPopup } from 'primereact/confirmpopup';
 import CrudHelper from "@/services/crud.helper.js"
+import AttachService from "@/services/attachment.service"
 import CRUD from "@/models/enums/crud-type";
 import { TabView, TabPanel } from 'primereact/tabview';
 import { PickList } from "primereact/picklist";
@@ -48,26 +49,6 @@ const Divisions = () => {
          setDivisions(result.data);
       });
    }, []);
-
-   //#region Attachment
-   const readAttachment = async (id: number | undefined | null) => {
-      setImageSrc('');
-      setAttachmentId(id)
-      if (!id){
-         return;
-      }
-      const res = await fetch(`/api/attachment/read?id=${id}`, {
-         method: "GET",
-         headers: {
-            "Content-Type": "application/json",
-         }
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-         setImageSrc(data.data.body);
-      }
-   }
-   //#endregion
 
    //#region Card
    const division = useFormik<Division>({
@@ -227,7 +208,8 @@ const Divisions = () => {
    const editDivision = async (data: Division) => {
       setCardHeader('Редактирование подразделения');
       division.setValues(data);
-      const attach = await readAttachment(data.attachment_id);
+      const attach = await AttachService.read(data.attachment_id);
+      setImageSrc(attach);
       //@ts-ignore
       setSelectedHalls(data.halls);
       hallList().then((result)=>{
@@ -279,6 +261,15 @@ const Divisions = () => {
       }
       try {
          setIsLoading(true);
+
+         if (attachChanged) {
+            const attach = fileUploadRef.current?.getFiles()[0];
+            if (attach) {
+               const attachResult = await AttachService.save(attach, attachmentId);
+               division.values.attachment_id = attachResult.data.id;
+            }
+         }
+
          //@ts-ignore
          division.values.halls = selectedHalls.map((item) => item.id);
          const res = recordState === RecordState.new ?
@@ -287,6 +278,7 @@ const Divisions = () => {
                short_name: division.values.short_name,
                contacts: division.values.contacts,
                parent_id: division.values.parent_id,
+               attachment_id: division.values.attachment_id,
                halls: division.values.halls
             }) :
             await CrudHelper.crud(controllerName, CRUD.update, {
@@ -294,6 +286,7 @@ const Divisions = () => {
                name: division.values.name,
                short_name: division.values.short_name,
                contacts: division.values.contacts,
+               attachment_id: division.values.attachment_id,
                halls: division.values.halls
             });
 

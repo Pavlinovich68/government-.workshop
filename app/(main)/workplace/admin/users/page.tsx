@@ -25,9 +25,7 @@ import circleProgress from '@/services/circle.progress.js'
 import CrudHelper from "@/services/crud.helper.js"
 import CRUD from "@/models/enums/crud-type";
 import { FileUpload, FileUploadHeaderTemplateOptions, ItemTemplateOptions } from 'primereact/fileupload';
-import { ProgressBar } from 'primereact/progressbar';
-import { Button } from 'primereact/button';
-import { Tag } from 'primereact/tag';
+import AttachService from "@/services/attachment.service"
 
 
 const Users = () => {
@@ -308,26 +306,6 @@ const Users = () => {
    }
 //#endregion
 
-//#region Attachment
-   const readAttachment = async (id: number | undefined | null) => {
-      setImageSrc('');
-      setAttachmentId(id)
-      if (!id){
-         return;
-      }
-      const res = await fetch(`/api/attachment/read?id=${id}`, {
-         method: "GET",
-         headers: {
-            "Content-Type": "application/json",
-         }
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-         setImageSrc(data.data.body);
-      }
-   }
-//#endregion
-
 //#region CRUD
    const saveUserRoles = (currentRoles: any) => {
       let _roles = [];
@@ -362,7 +340,8 @@ const Users = () => {
       setCardHeader('Редактирование пользователя');
       getDivisionsTree();
       user.setValues(data);
-      const attach = await readAttachment(data.attachment_id);
+      const attach = await AttachService.read(data.attachment_id);
+      setImageSrc(attach);
       setCurrentUserRoles(data.roles);
       saveUserRoles(data.roles);
       setRecordState(RecordState.edit);
@@ -374,36 +353,6 @@ const Users = () => {
 
    const deleteUser = async (data: any) => {
       return await CrudHelper.crud(controllerName, CRUD.delete, { id: data });
-   }
-
-   const toBase64 = (file: File): Promise<string> =>
-      new Promise((resolve, reject) => {
-         const reader = new FileReader();
-         reader.readAsDataURL(file);
-         reader.onload = () => resolve(reader.result as string);
-         reader.onerror = (error) => reject(error);
-   });
-
-   const saveAttach = async(file: File) => {
-      const base64 = await toBase64(file);
-      const model = {
-         type: file.type,
-         filename: file.name,
-         size: file.size,
-         //@ts-ignore
-         date: file.lastModifiedDate,
-         body: base64,
-         id: attachmentId
-      }
-      const res = await fetch(`/api/attachment/upsert`, {
-         method: "POST",
-         //body: data,
-         headers: {
-            "Content-Type": "application/json",
-         },
-         body: JSON.stringify(model),
-      });
-      return await res.json();
    }
 
    const saveUser = async () => {
@@ -435,11 +384,10 @@ const Users = () => {
       }
       try {
          setIsLoading(true);
-
          if (attachChanged) {
             const attach = fileUploadRef.current?.getFiles()[0];
             if (attach) {
-               const attachResult = await saveAttach(attach);
+               const attachResult = await AttachService.save(attach, attachmentId);
                user.values.attachment_id = attachResult.data.id;
             }
          }
