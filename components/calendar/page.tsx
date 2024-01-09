@@ -54,6 +54,20 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
 
    useImperativeHandle(ref, () => ({createEvent, days}));
 
+   const reloadMonth = () => {
+      eventCouner().then((data) => {
+         daysLocked().then((days)=>{
+            const dates = days.data.filter((i: any) => i.is_locked).map((i: any) => {return new Date(year as number, month as number -1, i.day)});
+            setDisableDates(dates);
+            setItems(prepareDates(data.data, days.data));
+            getDonuts().then((dnt) => {
+                  setDonut(dnt.data);
+                  setSelectedDay(new Date().getDate())
+            })
+         })
+      });
+   }
+
    const eventCouner = async () =>{
       if (hall) {
          const model = {
@@ -118,17 +132,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    }
 
    useEffect(() => {
-      eventCouner().then((data) => {
-         daysLocked().then((days)=>{
-            const dates = days.data.filter((i: any) => i.is_locked).map((i: any) => {return new Date(year as number, month as number -1, i.day)});
-            setDisableDates(dates);
-            setItems(prepareDates(data.data, days.data));
-            getDonuts().then((dnt) => {
-                  setDonut(dnt.data);
-                  setSelectedDay(new Date().getDate())
-            })
-         })
-      });
+      reloadMonth();
    }, [hall, year, month]);
 
    const addDays = (date: Date, days: number) => {
@@ -283,7 +287,6 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       }
 
       try {
-         debugger;
          const res = recordState === RecordState.new ?
             await CrudHelper.crud(controllerName, CRUD.create, {
                name: event.values.name,
@@ -313,6 +316,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
             if (editor.current) {
                editor.current.visible(false);
             }
+            reloadMonth();
          }
       } catch (e: any) {
          // @ts-ignore

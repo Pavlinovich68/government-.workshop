@@ -63,7 +63,7 @@ export const POST = async (request) => {
          where: {
             hall_id: model.hall_id,
             year: model.year,
-            month: model.month-1
+            month: model.month
          },
          include: {
             owner: {
@@ -78,7 +78,7 @@ export const POST = async (request) => {
          }
       });
 
-      const cnt = lastDay(model.year, model.month);
+      const cnt = lastDay(model.year, model.month-1);
       const days = Array.from(Array(cnt).keys()).map((i) => i + 1);
 
       const result = [];
