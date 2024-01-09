@@ -35,11 +35,22 @@
          }
       }
 
+      .calendarCellSelected {
+         border: 2px solid #7FD8E6;
+         margin: -3px -3px -3px -3px;
+         height: 86px;
+         z-index: 1;
+      }
+
       .dayCell {
          font-size: 1.3rem;
          font-weight: 700;
          text-align: right;
          padding-right: 8px;
+      }
+
+      .dayCellSelected {
+         font-size: 1.6rem !important;
       }
 
       .dayHoliday {

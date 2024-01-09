@@ -41,6 +41,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const colors = useRef(null);
    const editor = useRef<ICardRef>(null);
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
+   const [selectedDay, setSelectedDay] = useState<number>(0);
 
 
    const createEvent = (item: ICalendarItem) => {
@@ -124,6 +125,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
             setItems(prepareDates(data.data, days.data));
             getDonuts().then((dnt) => {
                   setDonut(dnt.data);
+                  setSelectedDay(new Date().getDate())
             })
          })
       });
@@ -222,6 +224,11 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       }
    }
 
+   const selectDay = async (item: ICalendarItem) => {
+      setSelectedDay(item.day);
+      //console.log('Cell click!!!', item);
+   }
+
    const checkTime = () => {
       const start = event.values.value[0] / 5;
       const length = (event.values.value[1] / 5) - start;
@@ -276,6 +283,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       }
 
       try {
+         debugger;
          const res = recordState === RecordState.new ?
             await CrudHelper.crud(controllerName, CRUD.create, {
                name: event.values.name,
@@ -409,15 +417,19 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                                  {'text-red-400': item.isWeekend && !item.isOutside},
                                  {'text-red-800': item.isWeekend && item.isOutside},
                                  {'text-gray-700': item.isPast || item.locked},
-                                 {'line-through': item.locked}
+                                 {'line-through': item.locked},
+                                 item.day === selectedDay && !item.isOutside ? styles.calendarCellSelected : ''
                               )}
                               onDoubleClick={() => {
-                              if (!item.isOutside && !item.isPast && !item.locked) {
-                                    createEventItem(item);
-                              }
-                           }}
+                                 if (!item.isOutside && !item.isPast && !item.locked) {
+                                       createEventItem(item);
+                                 }
+                              }}
+                              onClick={() => {
+                                 selectDay(item);
+                              }}
                         >
-                        <div className={classNames(styles.dayCell)}>{item.day}</div>
+                        <div className={classNames(styles.dayCell, item.day === selectedDay && !item.isOutside ? styles.dayCellSelected : '')}>{item.day}</div>
                         {!item.isOutside ?
                            <div>
                               <ItrDonut data={donut.find((i) => i.day === item.day)?.data} year={year} month={month as number-1} day={item.day}/>

@@ -63,7 +63,7 @@ export const POST = async (request) => {
          where: {
             hall_id: model.hall_id,
             year: model.year,
-            month: model.month
+            month: model.month-1
          },
          include: {
             owner: {
