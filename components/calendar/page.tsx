@@ -23,6 +23,7 @@ import RecordState from "@/models/enums/record-state";
 import CrudHelper from "@/services/crud.helper.js"
 import CRUD from "@/models/enums/crud-type";
 import {Toast} from "primereact/toast";
+import { IEventCard } from "@/models/IEventCard";
 
 const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const controllerName = "event";
@@ -42,6 +43,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const editor = useRef<ICardRef>(null);
    const [recordState, setRecordState] = useState<RecordState>(RecordState.ready);
    const [selectedDay, setSelectedDay] = useState<number>(0);
+   const [eventCards, setEventCards] = useState<IEventCard[]>([]);
 
 
    const createEvent = (item: ICalendarItem) => {
@@ -54,7 +56,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
 
    useImperativeHandle(ref, () => ({createEvent, days}));
 
-   const reloadMonth = () => {
+   const reloadMonth = (selectedDay: number) => {
       eventCouner().then((data) => {
          daysLocked().then((days)=>{
             const dates = days.data.filter((i: any) => i.is_locked).map((i: any) => {return new Date(year as number, month as number -1, i.day)});
@@ -62,10 +64,30 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
             setItems(prepareDates(data.data, days.data));
             getDonuts().then((dnt) => {
                   setDonut(dnt.data);
-                  setSelectedDay(new Date().getDate())
+                  setSelectedDay(selectedDay);
             })
          })
       });
+      getEventCards(selectedDay);
+   }
+
+   const getEventCards = async (day: number) => {
+      const model = {
+         hall_id: hall?.id,
+         year: year,
+         month: month,
+         day: day
+      };
+      const result = await fetch('/api/event/card', {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+         },
+         body: JSON.stringify(model),
+      })
+
+      const data = await result.json();
+      setEventCards(data.data);
    }
 
    const eventCouner = async () =>{
@@ -132,7 +154,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    }
 
    useEffect(() => {
-      reloadMonth();
+      reloadMonth(new Date().getDate());
    }, [hall, year, month]);
 
    const addDays = (date: Date, days: number) => {
@@ -230,6 +252,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
 
    const selectDay = async (item: ICalendarItem) => {
       setSelectedDay(item.day);
+      getEventCards(item.day);
       //console.log('Cell click!!!', item);
    }
 
@@ -316,7 +339,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
             if (editor.current) {
                editor.current.visible(false);
             }
-            reloadMonth();
+            reloadMonth(event.values.day);
          }
       } catch (e: any) {
          // @ts-ignore
@@ -400,7 +423,11 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
 
    return (
       <div className={classNames(styles.itrCalendar, 'grid mt-2')}>
-         <div className="col-2"></div>
+         <div className="col-2">
+            {eventCards?.slice(0, 6).map((item) => {
+               return <div key={`event{item.id}`}>{item.comment}</div>
+            })}
+         </div>
          <div className="col-8">
          <div className={styles.calendarGrid}>
                   <div className={classNames(styles.calendarCell, styles.weekDay)}>Понедельник</div>
@@ -444,7 +471,11 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                   })}
                </div>
             </div>
-         <div className="col-2"></div>
+         <div className="col-2">
+            {eventCards?.slice(6, 12).map((item) => {
+               return <div key={`event{item.id}`}>{item.comment}</div>
+            })}
+         </div>
          <ItrCard
             header={cardHeader}
             dialogStyle={{ width: '56vw' }}

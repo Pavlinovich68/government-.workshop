@@ -28,6 +28,15 @@ export const POST = async (request) => {
       return attach.body.toString();
    }
 
+   const timeInterval = (start, finish) => {
+      let startHours = Math.floor(start / 60);
+      let startMinutes = start - startHours * 60;
+      let finishHours = Math.floor(finish / 60);
+      let finishMinutes = finish - finishHours * 60;
+      let result = `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')} - ${finishHours.toString().padStart(2, '0')}:${finishMinutes.toString().padStart(2, '0')}`;
+      return result;
+   }
+
    try {
       const model = await request.json();
       const events = await prisma.event.findMany({
@@ -39,11 +48,18 @@ export const POST = async (request) => {
             },
             include: {
                owner: {
-                  select: {
-                     division_id: true
+                  include: {
+                     division: {
+                        select: {
+                           short_name: true
+                        }
+                     }
                   }
                }
-            }
+            },
+            orderBy: [
+               {start: 'asc'},
+            ]
       });
 
       const unique = [...new Set(events.map(item => item.owner.division_id))];
@@ -57,7 +73,20 @@ export const POST = async (request) => {
          event.logo = dict[event.owner.division_id];
       }
 
-      return await NextResponse.json({status: 'success', data: events});
+      const result = events.map((item) => {
+         return {
+            id: item.id,
+            comment: item.name,
+            timeInterval: timeInterval(item.start, item.period),
+            division: item.owner.division.short_name,
+            owner: item.owner.name,
+            email: item.owner.email,
+            phone: item.owner.phone,
+            logo: item.logo
+         }
+      } );
+
+      return await NextResponse.json({status: 'success', data: result});
    } catch (error) {
       return await NextResponse.json({status: 'error', data: error.stack });
    }
