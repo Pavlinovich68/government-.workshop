@@ -24,6 +24,7 @@ import CrudHelper from "@/services/crud.helper.js"
 import CRUD from "@/models/enums/crud-type";
 import {Toast} from "primereact/toast";
 import { IEventCard } from "@/models/IEventCard";
+import ItrEventCard from "../ItrEventCard";
 
 const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const controllerName = "event";
@@ -425,7 +426,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
       <div className={classNames(styles.itrCalendar, 'grid mt-2')}>
          <div className="col-2">
             {eventCards?.slice(0, 6).map((item) => {
-               return <div key={`event{item.id}`}>{item.comment}</div>
+               return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
             })}
          </div>
          <div className="col-8">
@@ -473,7 +474,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
             </div>
          <div className="col-2">
             {eventCards?.slice(6, 12).map((item) => {
-               return <div key={`event{item.id}`}>{item.comment}</div>
+               return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
             })}
          </div>
          <ItrCard
