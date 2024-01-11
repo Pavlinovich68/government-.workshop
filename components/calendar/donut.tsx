@@ -10,7 +10,8 @@ const ItrDonut = ({data, year, month, day}: any) => {
    useEffect(() => {
       const options = {
             cutout: '85%',
-            borderWidth: ''
+            borderWidth: '',
+            borderColor: '#ff0000'
       };
       setChartData(data);
       setChartOptions(options);

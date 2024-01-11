@@ -81,7 +81,7 @@ export const POST = async (request) => {
             division: item.owner.division.short_name,
             owner: item.owner.name,
             email: item.owner.email,
-            phone: item.owner.phone,
+            phone: item.owner.contacts,
             logo: item.logo
          }
       } );

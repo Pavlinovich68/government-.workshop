@@ -129,5 +129,22 @@
 
 .itrEventCard {
    margin-bottom: 5px;
+   font-size: small;
    padding: 5px 5px 5px 5px;
+   .divisionLogo {
+      padding: 8px 2px 2px 8px;
+   }
+   .divisionCell {
+      padding: 8px 5px 2px 2px;
+      .divisionName {
+         font-style: italic;
+         color: rgb(141, 208, 255);
+      }
+   }
+   .ownerName {
+      font-size: x-small;
+   }
+   .cardHr {
+      margin: 3px 0 3px 0;
+   }
 }

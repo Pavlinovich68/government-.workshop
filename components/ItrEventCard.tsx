@@ -7,9 +7,19 @@ import styles from "./calendar/styles.module.scss";
 const ItrEventCard = ({item} : any) => {
    return (
       <div className={classNames('card', styles.itrEventCard)}>
-         <Avatar icon="pi pi-user" size="large" shape="circle" className='itr-avatar' image={item.logo}/>
+         <div className="grid">
+            <div className={classNames('col-fixed', styles.divisionLogo)}>
+               <Avatar icon="pi pi-user" size="large" shape="circle" className='itr-avatar' image={item.logo}/>
+            </div>
+            <div className={classNames("col", styles.divisionCell)}>
+               <div className={styles.divisionName}>{item.division}</div>
+               <div>{item.timeInterval}</div>
+            </div>
+         </div>
          <div>{item.comment}</div>
-         <div>{item.timeInterval}</div>
+         <hr className={styles.cardHr}/>
+         <div className={styles.ownerName}>{item.owner}</div>
+         <div className={styles.ownerName}>{item.phone}</div>
       </div>
    );
 }
