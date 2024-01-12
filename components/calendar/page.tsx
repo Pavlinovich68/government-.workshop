@@ -25,6 +25,7 @@ import CRUD from "@/models/enums/crud-type";
 import {Toast} from "primereact/toast";
 import { IEventCard } from "@/models/IEventCard";
 import ItrEventCard from "../ItrEventCard";
+import { ScrollPanel } from 'primereact/scrollpanel';
 
 const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    const controllerName = "event";
@@ -424,11 +425,11 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
 
    return (
       <div className={classNames(styles.itrCalendar, 'grid mt-2')}>
-         <div className="col-2">
+         {/* <div className="col-2">
             {eventCards?.slice(0, 5).map((item) => {
                return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
             })}
-         </div>
+         </div> */}
          <div className="col-8">
          <div className={styles.calendarGrid}>
                   <div className={classNames(styles.calendarCell, styles.weekDay)}>Понедельник</div>
@@ -472,10 +473,12 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                   })}
                </div>
             </div>
-         <div className="col-2">
-            {eventCards?.slice(5, 10).map((item) => {
-               return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
-            })}
+         <div className="col-4">
+            <ScrollPanel style={{ width: '100%', height: '504px' }}>
+               {eventCards?.map((item) => {
+                  return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
+               })}
+            </ScrollPanel>
          </div>
          <ItrCard
             header={cardHeader}
