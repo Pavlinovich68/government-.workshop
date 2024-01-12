@@ -425,7 +425,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
    return (
       <div className={classNames(styles.itrCalendar, 'grid mt-2')}>
          <div className="col-2">
-            {eventCards?.slice(0, 6).map((item) => {
+            {eventCards?.slice(0, 5).map((item) => {
                return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
             })}
          </div>
@@ -473,7 +473,7 @@ const ItrCalendar = ({hall, year, month} : any, ref: Ref<ICalendarRef>) => {
                </div>
             </div>
          <div className="col-2">
-            {eventCards?.slice(6, 12).map((item) => {
+            {eventCards?.slice(5, 10).map((item) => {
                return <ItrEventCard key={`event{item.id}`} item={item}></ItrEventCard>
             })}
          </div>
