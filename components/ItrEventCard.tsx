@@ -18,8 +18,7 @@ const ItrEventCard = ({item} : any) => {
          </div>
          <div>{item.comment}</div>
          <hr className={styles.cardHr}/>
-         <div className={styles.ownerName}>{item.owner}</div>
-         <div className={styles.ownerName}>{item.phone}</div>
+         <div className={styles.ownerName}>{item.owner}: {item.phone}, E-Mail: {item.email}</div>
       </div>
    );
 }
