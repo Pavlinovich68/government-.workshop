@@ -49,7 +49,7 @@ model division {
    logo          attachment? @relation(fields: [attachment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
    users         users[]
    halls         hall[]
-   departments   department[]
+   posts         post[]
 }
 
 model users {
@@ -126,23 +126,22 @@ model locked {
    owner      users    @relation(fields: [owner_id], references: [id])
 }
 
-// Штатное расписание
-model department {
-   id Int @id @default(autoincrement())
-   name String @db.VarChar(100)
-   division_id Int
-   division division @relation(fields: [division_id], references: [id])
-   parent_id Int?
-   parent        department?  @relation("departmentTodepartment", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-   childrens     department[] @relation("departmentTodepartment")
-   posts post[]
-}
-
+// *********** Штатное расписание *****************
+// Должность
 model post {
    id Int @id @default(autoincrement())
    name String @db.VarChar(100)
-   begin_date    DateTime    @db.Timestamp(6)
-   end_date      DateTime?   @db.Timestamp(6)
-   department_id Int
-   department department @relation(fields: [department_id], references: [id])
+   quantity Int
+   division_id Int
+   division division @relation(fields: [division_id], references: [id])
+   employees employee[]
+}
+
+model employee {
+   id Int @id @default(autoincrement())
+   first_name String @db.VarChar(50)
+   last_name String @db.VarChar(50)
+   patronymic String @db.VarChar(50)
+   post_id Int
+   post post @relation(fields: [post_id], references: [id])
 }
