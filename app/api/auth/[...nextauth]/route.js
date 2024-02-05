@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import { use } from 'react';
+import { signJwtAccessToken } from '@/lib/jwt';
 
 const prisma = new PrismaClient();
 
@@ -29,7 +30,7 @@ export const authOptions = {
                where: {
                   email: credentials.email
                },
-               include: { 
+               include: {
                   division: true
                }
             });
@@ -44,11 +45,14 @@ export const authOptions = {
                return null;
             }
 
+            const { password, ...userWithoutPass } = user;
+            const accessToken = signJwtAccessToken(userWithoutPass);
+
             const division = await prisma.division.findUnique({
                where: {
                   id: user.division.id
                },
-               include: { 
+               include: {
                   halls: true
                }
             });
@@ -56,7 +60,13 @@ export const authOptions = {
             user.avatar = user.avatar?.body;
             user.halls = division.halls;
 
-            return user;
+            const result = {
+               ...userWithoutPass,
+               accessToken,
+            }
+
+            console.log('AccessToken:', result);
+            return result;
          }
       })
    ],
