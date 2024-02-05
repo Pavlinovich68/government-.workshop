@@ -62,6 +62,11 @@ const AppMenu = () => {
                      to: '/workplace/references/divisions'
                   },
                   {
+                     label: 'Штатное расписание',
+                     icon: 'pi pi-fw pi-users',
+                     to: ''
+                  },
+                  {
                      visible: checkRoles(['admin']),
                      label: 'Здания',
                      icon: 'pi pi-fw pi-building',
